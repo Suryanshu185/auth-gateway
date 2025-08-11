@@ -22,13 +22,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrgUnitRole_ListOrgUnitRoles_FullMethodName  = "/api.OrgUnitRole/ListOrgUnitRoles"
-	OrgUnitRole_CreateCustomRole_FullMethodName  = "/api.OrgUnitRole/CreateCustomRole"
-	OrgUnitRole_UpdateCustomRole_FullMethodName  = "/api.OrgUnitRole/UpdateCustomRole"
-	OrgUnitRole_GetCustomRole_FullMethodName     = "/api.OrgUnitRole/GetCustomRole"
-	OrgUnitRole_DeleteCustomRole_FullMethodName  = "/api.OrgUnitRole/DeleteCustomRole"
-	OrgUnitRole_RestoreCustomRole_FullMethodName = "/api.OrgUnitRole/RestoreCustomRole"
-	OrgUnitRole_ListCustomRoles_FullMethodName   = "/api.OrgUnitRole/ListCustomRoles"
+	OrgUnitRole_ListOrgUnitRoles_FullMethodName = "/api.OrgUnitRole/ListOrgUnitRoles"
+	OrgUnitRole_CreateCustomRole_FullMethodName = "/api.OrgUnitRole/CreateCustomRole"
+	OrgUnitRole_UpdateCustomRole_FullMethodName = "/api.OrgUnitRole/UpdateCustomRole"
+	OrgUnitRole_GetCustomRole_FullMethodName    = "/api.OrgUnitRole/GetCustomRole"
+	OrgUnitRole_DeleteCustomRole_FullMethodName = "/api.OrgUnitRole/DeleteCustomRole"
+	OrgUnitRole_ListCustomRoles_FullMethodName  = "/api.OrgUnitRole/ListCustomRoles"
 )
 
 // OrgUnitRoleClient is the client API for OrgUnitRole service.
@@ -48,8 +47,6 @@ type OrgUnitRoleClient interface {
 	// Delete a custom role from the organization unit
 	// Delete (soft delete) a custom role from the organization unit
 	DeleteCustomRole(ctx context.Context, in *DeleteCustomRoleReq, opts ...grpc.CallOption) (*DeleteCustomRoleResp, error)
-	// Restore a soft-deleted custom role in the organization unit
-	RestoreCustomRole(ctx context.Context, in *RestoreCustomRoleReq, opts ...grpc.CallOption) (*RestoreCustomRoleResp, error)
 	// List all custom roles for the organization unit
 	ListCustomRoles(ctx context.Context, in *ListCustomRolesReq, opts ...grpc.CallOption) (*ListCustomRolesResp, error)
 }
@@ -112,16 +109,6 @@ func (c *orgUnitRoleClient) DeleteCustomRole(ctx context.Context, in *DeleteCust
 	return out, nil
 }
 
-func (c *orgUnitRoleClient) RestoreCustomRole(ctx context.Context, in *RestoreCustomRoleReq, opts ...grpc.CallOption) (*RestoreCustomRoleResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RestoreCustomRoleResp)
-	err := c.cc.Invoke(ctx, OrgUnitRole_RestoreCustomRole_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *orgUnitRoleClient) ListCustomRoles(ctx context.Context, in *ListCustomRolesReq, opts ...grpc.CallOption) (*ListCustomRolesResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListCustomRolesResp)
@@ -149,8 +136,6 @@ type OrgUnitRoleServer interface {
 	// Delete a custom role from the organization unit
 	// Delete (soft delete) a custom role from the organization unit
 	DeleteCustomRole(context.Context, *DeleteCustomRoleReq) (*DeleteCustomRoleResp, error)
-	// Restore a soft-deleted custom role in the organization unit
-	RestoreCustomRole(context.Context, *RestoreCustomRoleReq) (*RestoreCustomRoleResp, error)
 	// List all custom roles for the organization unit
 	ListCustomRoles(context.Context, *ListCustomRolesReq) (*ListCustomRolesResp, error)
 	mustEmbedUnimplementedOrgUnitRoleServer()
@@ -177,9 +162,6 @@ func (UnimplementedOrgUnitRoleServer) GetCustomRole(context.Context, *GetCustomR
 }
 func (UnimplementedOrgUnitRoleServer) DeleteCustomRole(context.Context, *DeleteCustomRoleReq) (*DeleteCustomRoleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCustomRole not implemented")
-}
-func (UnimplementedOrgUnitRoleServer) RestoreCustomRole(context.Context, *RestoreCustomRoleReq) (*RestoreCustomRoleResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RestoreCustomRole not implemented")
 }
 func (UnimplementedOrgUnitRoleServer) ListCustomRoles(context.Context, *ListCustomRolesReq) (*ListCustomRolesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCustomRoles not implemented")
@@ -295,24 +277,6 @@ func _OrgUnitRole_DeleteCustomRole_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrgUnitRole_RestoreCustomRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestoreCustomRoleReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrgUnitRoleServer).RestoreCustomRole(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: OrgUnitRole_RestoreCustomRole_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrgUnitRoleServer).RestoreCustomRole(ctx, req.(*RestoreCustomRoleReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _OrgUnitRole_ListCustomRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListCustomRolesReq)
 	if err := dec(in); err != nil {
@@ -357,10 +321,6 @@ var OrgUnitRole_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCustomRole",
 			Handler:    _OrgUnitRole_DeleteCustomRole_Handler,
-		},
-		{
-			MethodName: "RestoreCustomRole",
-			Handler:    _OrgUnitRole_RestoreCustomRole_Handler,
 		},
 		{
 			MethodName: "ListCustomRoles",

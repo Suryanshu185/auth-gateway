@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -137,13 +138,60 @@ func (s *OrgUnitUserServer) DeleteOrgUnitUser(ctx context.Context, req *api.OrgU
 		OrgUnitId: req.Ou,
 	}
 
-	err := s.tbl.DeleteKey(ctx, key)
+	// Get the user data before deletion to check their role
+	filter := bson.M{
+		"key.tenant":    authInfo.Realm,
+		"key.username":  req.User,
+		"key.orgUnitId": req.Ou,
+	}
+	users, err := s.tbl.FindMany(ctx, filter, 0, 1)
+	if err != nil {
+		log.Printf("failed to get org unit user before deletion, got error: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	if len(users) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Org Unit User %s, not found", req.User)
+	}
+
+	userData := users[0]
+
+	// Store the role name for potential cleanup
+	roleName := userData.Role
+
+	// Delete the user
+	err = s.tbl.DeleteKey(ctx, key)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, status.Errorf(codes.NotFound, "Org Unit User %s, not found", req.User)
 		}
 		log.Printf("failed to delete org unit user, got error: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Check if the role was a custom role and potentially clean up soft-deleted role
+	if roleName != "admin" && roleName != "default" && roleName != "auditor" {
+		// This was a custom role - check if it's soft-deleted and has no remaining bindings
+		roleKey := &table.OrgUnitCustomRoleKey{
+			Tenant:    authInfo.Realm,
+			OrgUnitId: req.Ou,
+			Name:      roleName,
+		}
+
+		// Try to find the role (including soft-deleted ones)
+		existingRole, err := s.ouCustomRoleTbl.FindAnyByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, roleName)
+		if err == nil && existingRole.Active != nil && !*existingRole.Active {
+			// Role exists and is soft-deleted - check if it has remaining bindings
+			hasBindings, err := s.ouCustomRoleTbl.HasBindings(ctx, authInfo.Realm, req.Ou, roleName)
+			if err == nil && !hasBindings {
+				// No more bindings - permanently delete the soft-deleted role
+				err = s.ouCustomRoleTbl.PermanentDelete(ctx, roleKey)
+				if err != nil {
+					// Log the error but don't fail the user deletion
+					log.Printf("failed to cleanup orphaned soft-deleted role %s: %s", roleName, err)
+				}
+			}
+		}
 	}
 
 	return &api.OrgUnitUserDeleteResp{}, nil
@@ -196,7 +244,7 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 // validateRole checks if the provided role is valid (either built-in or custom role)
 func (s *OrgUnitUserServer) validateRole(ctx context.Context, roleName, orgUnitId, tenant string) error {
 	// Check if it's a built-in system role
-	if roleName == "admin" || roleName == "default" || roleName == "auditor" {
+	if roleName == "admin" || roleName == "auditor" {
 		return nil // Built-in roles are always valid
 	}
 

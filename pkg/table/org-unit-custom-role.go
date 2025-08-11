@@ -128,45 +128,114 @@ func (t *OrgUnitCustomRoleTable) FindByNameAndOrgUnit(ctx context.Context, tenan
 // SoftDelete marks a custom role as inactive instead of physically deleting it
 func (t *OrgUnitCustomRoleTable) SoftDelete(ctx context.Context, key *OrgUnitCustomRoleKey, deletedBy string) error {
 	update := &OrgUnitCustomRole{
-		Active:    boolPtr(false),   // Mark as inactive
-		UpdatedBy: deletedBy,        // Track who performed the deletion
-		Updated:   getCurrentTime(), // Update timestamp
+		Active:    &[]bool{false}[0], // Mark as inactive
+		UpdatedBy: deletedBy,         // Track who performed the deletion
+		Updated:   time.Now().Unix(), // Update timestamp
 	}
 
 	return t.Update(ctx, key, update)
 }
 
-// RestoreRole reactivates a soft-deleted custom role
-func (t *OrgUnitCustomRoleTable) RestoreRole(ctx context.Context, key *OrgUnitCustomRoleKey, restoredBy string) error {
-	update := &OrgUnitCustomRole{
-		Active:    boolPtr(true),    // Mark as active again
-		UpdatedBy: restoredBy,       // Track who performed the restoration
-		Updated:   getCurrentTime(), // Update timestamp
+// HasBindings checks if a custom role has any users assigned to it
+func (t *OrgUnitCustomRoleTable) HasBindings(ctx context.Context, tenant, orgUnitId, roleName string) (bool, error) {
+	// Get the org unit user table to check for role assignments
+	orgUnitUserTable, err := GetOrgUnitUserTable()
+	if err != nil {
+		return false, err
 	}
 
-	return t.Update(ctx, key, update)
+	// Check if any users are assigned this custom role
+	filter := bson.M{
+		"key.tenant":    tenant,
+		"key.orgUnitId": orgUnitId,
+		"role":          roleName,
+	}
+
+	count, err := orgUnitUserTable.col.Count(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
 
-// FindInactiveByNameAndOrgUnit finds a soft-deleted custom role by name within an org unit
-func (t *OrgUnitCustomRoleTable) FindInactiveByNameAndOrgUnit(ctx context.Context, tenant, orgUnitId, roleName string) (*OrgUnitCustomRole, error) {
+// PermanentDelete permanently removes a custom role from the database
+func (t *OrgUnitCustomRoleTable) PermanentDelete(ctx context.Context, key *OrgUnitCustomRoleKey) error {
+	return t.DeleteKey(ctx, key)
+}
+
+// DeleteCustomRoleWithBindingCheck performs intelligent deletion based on binding status
+func (t *OrgUnitCustomRoleTable) DeleteCustomRoleWithBindingCheck(ctx context.Context, key *OrgUnitCustomRoleKey, deletedBy string) error {
+	// Check if the role has any bindings
+	hasBindings, err := t.HasBindings(ctx, key.Tenant, key.OrgUnitId, key.Name)
+	if err != nil {
+		return err
+	}
+
+	if hasBindings {
+		// Role has bindings - perform soft delete only
+		return t.SoftDelete(ctx, key, deletedBy)
+	} else {
+		// No bindings - permanently delete the role
+		return t.PermanentDelete(ctx, key)
+	}
+}
+
+// FindAnyByNameAndOrgUnit finds a custom role by name (including soft-deleted ones)
+// This is used to check for name conflicts including soft-deleted roles with bindings
+func (t *OrgUnitCustomRoleTable) FindAnyByNameAndOrgUnit(ctx context.Context, tenant, orgUnitId, roleName string) (*OrgUnitCustomRole, error) {
 	filter := bson.M{
 		"key.tenant":    tenant,    // Filter by tenant
 		"key.orgUnitId": orgUnitId, // Filter by organization unit
 		"key.name":      roleName,  // Filter by role name
-		"active":        false,     // Include only inactive (soft-deleted) roles
+		// No active filter - find both active and inactive roles
 	}
 
-	// Use FindMany with limit 1 to get a single inactive role
+	// Use FindMany with limit 1 to get any role (active or inactive)
 	results, err := t.FindMany(ctx, filter, 0, 1)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(results) == 0 {
-		return nil, errors.Wrapf(errors.NotFound, "soft-deleted custom role not found")
+		return nil, errors.Wrapf(errors.NotFound, "custom role not found")
 	}
 
 	return results[0], nil
+}
+
+// CleanupOrphanedSoftDeletedRoles removes soft-deleted roles that no longer have bindings
+func (t *OrgUnitCustomRoleTable) CleanupOrphanedSoftDeletedRoles(ctx context.Context, tenant, orgUnitId string) error {
+	// Find all soft-deleted roles
+	filter := bson.M{
+		"key.tenant":    tenant,
+		"key.orgUnitId": orgUnitId,
+		"active":        false, // Only soft-deleted roles
+	}
+
+	softDeletedRoles, err := t.FindMany(ctx, filter, 0, 0) // Get all
+	if err != nil {
+		return err
+	}
+
+	// Check each soft-deleted role for bindings
+	for _, role := range softDeletedRoles {
+		hasBindings, err := t.HasBindings(ctx, tenant, orgUnitId, role.Key.Name)
+		if err != nil {
+			continue // Skip on error, don't fail the entire cleanup
+		}
+
+		// If no bindings, permanently delete
+		if !hasBindings {
+			err = t.PermanentDelete(ctx, role.Key)
+			if err != nil {
+				// Log error but continue with other roles
+				continue
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetOrgUnitCustomRoleTable returns the global custom role table instance
@@ -197,14 +266,4 @@ func LocateOrgUnitCustomRoleTable(client db.StoreClient) (*OrgUnitCustomRoleTabl
 	orgUnitCustomRoleTable = tbl
 
 	return orgUnitCustomRoleTable, nil
-}
-
-// Helper function to create boolean pointer
-func boolPtr(b bool) *bool {
-	return &b
-}
-
-// Helper function to get current timestamp
-func getCurrentTime() int64 {
-	return time.Now().Unix() // Get current Unix timestamp
 }

@@ -223,9 +223,6 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 			return true
 		}
 		return false
-	case "default":
-		// default role has basic access - implement based on requirements
-		return true
 	}
 
 	// Check if it's a custom role
@@ -244,13 +241,18 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 
 // checkCustomRolePermissions validates if a custom role permits the requested HTTP action
 func (s *gateway) checkCustomRolePermissions(customRole *table.OrgUnitCustomRole, r *http.Request) bool {
-	// Extract the resource and verb from the current route
+	// Extract route info for permission checking
 	routeInfo, err := s.extractRouteInfo(r)
 	if err != nil {
 		log.Printf("failed to extract route info for permission check: %s", err)
 		return false // Deny access if we can't determine the resource
 	}
 
+	return s.validatePermissions(customRole, routeInfo)
+}
+
+// validatePermissions checks if the custom role allows access to the given resource/verb
+func (s *gateway) validatePermissions(customRole *table.OrgUnitCustomRole, routeInfo *RouteInfo) bool {
 	// Check each permission in the custom role
 	for _, permission := range customRole.Permissions {
 		if permission.Resource == routeInfo.Resource {
@@ -296,16 +298,13 @@ func (s *gateway) extractRouteInfo(r *http.Request) (*RouteInfo, error) {
 		targetMethod = route.PATCH
 	case "HEAD":
 		targetMethod = route.HEAD
-	case "OPTIONS":
-		targetMethod = route.OPTIONS
 	default:
 		return nil, errors.New("unsupported HTTP method") // Unsupported method
 	}
 
-	// Match the current request to a route
+	// Match the current request to a route using exact path matching
 	for _, route := range routes {
-		if route.Key.Method == targetMethod &&
-			matchesPath(route.Key.Url, r.URL.Path) {
+		if route.Key.Method == targetMethod && route.Key.Url == r.URL.Path {
 			return &RouteInfo{
 				Resource: route.Resource, // Resource name from route config
 				Verb:     route.Verb,     // Verb/action from route config
@@ -316,35 +315,14 @@ func (s *gateway) extractRouteInfo(r *http.Request) (*RouteInfo, error) {
 	return nil, errors.New("route not found") // Route not found in configuration
 }
 
-// matchesPath checks if a route pattern matches the request path
-func matchesPath(pattern, path string) bool {
-	// Simple path matching - could be enhanced with parameter matching
-	// For now, just check if the paths are equal (excluding parameters)
-	return pattern == path || containsPathPattern(pattern, path)
-}
-
-// containsPathPattern performs basic pattern matching for routes with parameters
-func containsPathPattern(pattern, path string) bool {
-	// This is a simplified implementation
-	// A more robust implementation would handle {param} patterns properly
-	return false // Placeholder - should implement proper pattern matching
-}
-
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var status int
 	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
-		status = http.StatusNotFound
-		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), status)
+		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
 		return
 	}
 
 	var authInfo *common.AuthInfo
-	defer func() {
-		if status != 0 {
-			s.handleAccessLog(authInfo, orgUnit, r, status)
-		}
-	}()
 
 	if match.isPublic {
 		// even for public route ensure that we have auth info
@@ -356,15 +334,13 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// interceptors
 		err = common.SetAuthInfoHeader(r, &common.AuthInfo{})
 		if err != nil {
-			status = http.StatusInternalServerError
-			http.Error(w, fmt.Sprintf("Something went wrong: %s", err), status)
+			http.Error(w, fmt.Sprintf("Something went wrong: %s", err), http.StatusInternalServerError)
 			return
 		}
 	} else {
 		authInfo, err = s.AuthenticateRequest(r)
 		if err != nil {
-			status = http.StatusUnauthorized
-			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), status)
+			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
 			return
 		}
 		newCtx := context.WithValue(r.Context(), authKey, *authInfo)
@@ -373,8 +349,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if !match.isUserSpecific {
 			if match.isRoot && !authInfo.IsRoot {
 				// access to the route is meant to come only from root tenancy
-				status = http.StatusForbidden
-				http.Error(w, "Access Denied", status)
+				http.Error(w, "Access Denied", http.StatusForbidden)
 				return
 			}
 			// perform RBAC / PBAC and scope validations
@@ -389,8 +364,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					allow = s.performOrgUnitRoleCheck(authInfo, orgUnit, r)
 				}
 				if !allow {
-					status = http.StatusForbidden
-					http.Error(w, "Access Denied", status)
+					http.Error(w, "Access Denied", http.StatusForbidden)
 					return
 				}
 			}
@@ -403,18 +377,15 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			ouList, err := s.ouTbl.FindByTenant(r.Context(), authInfo.Realm, orgUnit)
 			if err != nil {
 				if errors.IsNotFound(err) {
-					status = http.StatusNotFound
-					http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), status)
+					http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
 					return
 				}
 				log.Printf("Failed to find org unit %s in tenant %s: %s", orgUnit, authInfo.Realm, err)
-				status = http.StatusInternalServerError
-				http.Error(w, "Something went wrong while processing request", status)
+				http.Error(w, "Something went wrong while processing request", http.StatusInternalServerError)
 				return
 			}
 			if len(ouList) == 0 {
-				status = http.StatusNotFound
-				http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), status)
+				http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
 				return
 			}
 		}
@@ -502,6 +473,11 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit user table: %s", err)
 	}
 
+	ouCustomRoleTbl, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("unable to get org unit custom role table: %s", err)
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -517,12 +493,13 @@ func New() http.Handler {
 	}
 
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:   apiKeys,
-		userTbl:   userTbl,
-		routes:    routes,
-		ouTbl:     ouTbl,
-		ouUserTbl: ouUserTbl,
+		validator:       hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:         apiKeys,
+		userTbl:         userTbl,
+		routes:          routes,
+		ouTbl:           ouTbl,
+		ouUserTbl:       ouUserTbl,
+		ouCustomRoleTbl: ouCustomRoleTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,

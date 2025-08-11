@@ -58,6 +58,44 @@ func (s *OrgUnitRoleServer) CreateCustomRole(ctx context.Context, req *api.Creat
 		return nil, status.Errorf(codes.InvalidArgument, "Role name '%s' is reserved and cannot be used for custom roles", req.Name)
 	}
 
+	// Check if there's an existing role (including soft-deleted ones) with the same name
+	existingRole, err := s.customRoleTable.FindAnyByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, req.Name)
+	if err == nil {
+		// Role exists - check if it's active or soft-deleted with bindings
+		if existingRole.Active == nil || *existingRole.Active {
+			// Active role exists
+			return nil, status.Errorf(codes.AlreadyExists, "Custom role '%s' already exists in organization unit", req.Name)
+		}
+
+		// Soft-deleted role exists - check if it has bindings
+		hasBindings, err := s.customRoleTable.HasBindings(ctx, authInfo.Realm, req.Ou, req.Name)
+		if err != nil {
+			log.Printf("failed to check bindings for role %s: %s", req.Name, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+		}
+
+		if hasBindings {
+			// Soft-deleted role with bindings exists - cannot reuse name
+			return nil, status.Errorf(codes.AlreadyExists, "Custom role '%s' already exists in organization unit", req.Name)
+		}
+
+		// Soft-deleted role without bindings - can be permanently removed and recreated
+		key := &table.OrgUnitCustomRoleKey{
+			Tenant:    authInfo.Realm,
+			OrgUnitId: req.Ou,
+			Name:      req.Name,
+		}
+		err = s.customRoleTable.PermanentDelete(ctx, key)
+		if err != nil {
+			log.Printf("failed to permanently delete orphaned role %s: %s", req.Name, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+		}
+	} else if !errors.IsNotFound(err) {
+		// Unexpected error
+		log.Printf("failed to check existing role %s: %s", req.Name, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
 	// Convert protobuf permissions to table permissions
 	var permissions []*table.RolePermission
 	for _, perm := range req.Permissions {
@@ -79,18 +117,13 @@ func (s *OrgUnitRoleServer) CreateCustomRole(ctx context.Context, req *api.Creat
 		Permissions: permissions,       // List of permissions granted by this role
 		Created:     time.Now().Unix(), // Timestamp when role was created
 		CreatedBy:   authInfo.UserName, // User who created this role
-		Active:      getBoolPtr(true),  // Mark role as active
+		Active:      &[]bool{true}[0],  // Mark role as active
 	}
 
 	// Insert the custom role into the database
-	err := s.customRoleTable.Insert(ctx, customRole.Key, customRole)
+	err = s.customRoleTable.Insert(ctx, customRole.Key, customRole)
 	if err != nil {
 		if errors.IsAlreadyExists(err) {
-			// Check if there's a soft-deleted role with the same name
-			deletedRole, checkErr := s.customRoleTable.FindInactiveByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, req.Name)
-			if checkErr == nil && deletedRole != nil {
-				return nil, status.Errorf(codes.AlreadyExists, "Custom role '%s' was previously deleted. Please restore it instead of creating a new one", req.Name)
-			}
 			return nil, status.Errorf(codes.AlreadyExists, "Custom role '%s' already exists in organization unit", req.Name)
 		}
 		log.Printf("failed to create custom role: %s", err)
@@ -187,7 +220,7 @@ func (s *OrgUnitRoleServer) GetCustomRole(ctx context.Context, req *api.GetCusto
 	}, nil
 }
 
-// DeleteCustomRole soft-deletes a custom role from the organization unit
+// DeleteCustomRole deletes a custom role from the organization unit with binding awareness
 func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.DeleteCustomRoleReq) (*api.DeleteCustomRoleResp, error) {
 	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
 	if authInfo == nil {
@@ -201,8 +234,8 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 		Name:      req.RoleName,   // Role name to delete
 	}
 
-	// Perform soft delete (mark as inactive)
-	err := s.customRoleTable.SoftDelete(ctx, key, authInfo.UserName)
+	// Perform binding-aware deletion (soft delete if bindings exist, permanent delete otherwise)
+	err := s.customRoleTable.DeleteCustomRoleWithBindingCheck(ctx, key, authInfo.UserName)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.RoleName)
@@ -213,35 +246,6 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 
 	return &api.DeleteCustomRoleResp{
 		Message: "Custom role deleted successfully", // Success confirmation message
-	}, nil
-}
-
-// RestoreCustomRole restores a previously soft-deleted custom role
-func (s *OrgUnitRoleServer) RestoreCustomRole(ctx context.Context, req *api.RestoreCustomRoleReq) (*api.RestoreCustomRoleResp, error) {
-	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
-	if authInfo == nil {
-		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
-	}
-
-	// Create the key for finding the role to restore
-	key := &table.OrgUnitCustomRoleKey{
-		Tenant:    authInfo.Realm, // Current user's tenant
-		OrgUnitId: req.Ou,         // Organization unit ID from request
-		Name:      req.RoleName,   // Role name to restore
-	}
-
-	// Perform restore operation (mark as active)
-	err := s.customRoleTable.RestoreRole(ctx, key, authInfo.UserName)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return nil, status.Errorf(codes.NotFound, "Deleted custom role '%s' not found in organization unit", req.RoleName)
-		}
-		log.Printf("failed to restore custom role: %s", err)
-		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
-	}
-
-	return &api.RestoreCustomRoleResp{
-		Message: "Custom role restored successfully", // Success confirmation message
 	}, nil
 }
 
@@ -321,9 +325,4 @@ func NewOrgUnitRoleServer(ctx *model.GrpcServerContext, ep string) *OrgUnitRoleS
 		}
 	}
 	return srv
-}
-
-// Helper function to create boolean pointer
-func getBoolPtr(b bool) *bool {
-	return &b // Return pointer to boolean value
 }
