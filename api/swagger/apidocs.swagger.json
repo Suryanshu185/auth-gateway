@@ -217,9 +217,170 @@
         ]
       }
     },
+    "/api/auth/v1/ou/{ou}/role": {
+      "post": {
+        "summary": "Create a new custom role for the organization unit",
+        "operationId": "OrgUnitRole_CreateCustomRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateCustomRoleResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "Organization unit ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrgUnitRoleCreateCustomRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnitRole"
+        ]
+      }
+    },
+    "/api/auth/v1/ou/{ou}/role/{name}": {
+      "get": {
+        "summary": "Get details of a specific custom role",
+        "operationId": "OrgUnitRole_GetCustomRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetCustomRoleResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "Organization unit ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "description": "Name of the custom role to retrieve",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrgUnitRole"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a custom role from the organization unit\nDelete (soft delete) a custom role from the organization unit",
+        "operationId": "OrgUnitRole_DeleteCustomRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDeleteCustomRoleResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "Organization unit ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "description": "Name of the custom role to delete",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrgUnitRole"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing custom role for the organization unit",
+        "operationId": "OrgUnitRole_UpdateCustomRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUpdateCustomRoleResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "Organization unit ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "description": "Name of the custom role to update",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrgUnitRoleUpdateCustomRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnitRole"
+        ]
+      }
+    },
     "/api/auth/v1/ou/{ou}/roles": {
       "get": {
-        "summary": "Get List of available org unit roles, for specifc orgranisation",
+        "summary": "Get List of available org unit roles (both built-in and custom), for specific organisation",
         "operationId": "OrgUnitRole_ListOrgUnitRoles",
         "responses": {
           "200": {
@@ -1892,6 +2053,54 @@
       },
       "title": "request for update of an existing customer"
     },
+    "OrgUnitRoleCreateCustomRoleBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name of the custom role (must be unique within the org unit)"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "Display name for the custom role"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description explaining the purpose of this custom role"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiRolePermission"
+          },
+          "title": "List of permissions granted by this custom role"
+        }
+      },
+      "title": "Create custom role request"
+    },
+    "OrgUnitRoleUpdateCustomRoleBody": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "title": "Updated display name for the custom role"
+        },
+        "description": {
+          "type": "string",
+          "title": "Updated description explaining the purpose of this custom role"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiRolePermission"
+          },
+          "title": "Updated list of permissions granted by this custom role"
+        }
+      },
+      "title": "Update custom role request"
+    },
     "OrgUnitUpdateOrgUnitBody": {
       "type": "object",
       "properties": {
@@ -2043,6 +2252,16 @@
         }
       }
     },
+    "apiCreateCustomRoleResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Confirmation message"
+        }
+      },
+      "title": "Create custom role response"
+    },
     "apiCustomerAddReq": {
       "type": "object",
       "properties": {
@@ -2149,6 +2368,60 @@
     },
     "apiDefaultOrgUnitResp": {
       "type": "object"
+    },
+    "apiDeleteCustomRoleResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Confirmation message"
+        }
+      },
+      "title": "Delete custom role response"
+    },
+    "apiGetCustomRoleResp": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name of the custom role"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "Display name for the custom role"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description explaining the purpose of this custom role"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiRolePermission"
+          },
+          "title": "List of permissions granted by this custom role"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "Timestamp when the role was created"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "User who created this custom role"
+        },
+        "updated": {
+          "type": "string",
+          "format": "int64",
+          "title": "Timestamp when the role was last updated"
+        },
+        "updatedBy": {
+          "type": "string",
+          "title": "User who last updated this custom role"
+        }
+      },
+      "title": "Get custom role response"
     },
     "apiMyAzsListEntry": {
       "type": "object",
@@ -2370,6 +2643,23 @@
         "desc": {
           "type": "string",
           "title": "role description, provding details about the role"
+        },
+        "type": {
+          "type": "string",
+          "title": "role type: \"built-in\" for system roles (admin, auditor) or \"custom\" for user-defined roles"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "display name for custom roles (only applicable for custom roles)"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "creation timestamp for custom roles (only applicable for custom roles)"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "user who created the role for custom roles (only applicable for custom roles)"
         }
       }
     },
@@ -2386,7 +2676,7 @@
         }
       },
       "description": "eventually if we start working with longer list of roles\n keep first index for count to provide pagination\n int32 count = 1;",
-      "title": "org unit roles list response"
+      "title": "org unit roles list response - includes both built-in and custom roles"
     },
     "apiOrgUnitUpdateResp": {
       "type": "object"
@@ -2539,6 +2829,23 @@
         }
       },
       "title": "resource get response"
+    },
+    "apiRolePermission": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "type": "string",
+          "title": "Resource name this permission applies to"
+        },
+        "verbs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "List of allowed verbs/actions for this resource"
+        }
+      },
+      "title": "Permission definition for custom roles"
     },
     "apiTenantAdminCreateConfig": {
       "type": "object",
@@ -2894,6 +3201,16 @@
         }
       },
       "title": "tenant list response"
+    },
+    "apiUpdateCustomRoleResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Confirmation message"
+        }
+      },
+      "title": "Update custom role response"
     },
     "apiUserCreateReq": {
       "type": "object",

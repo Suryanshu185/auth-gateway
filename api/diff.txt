@@ -1,0 +1,2652 @@
+diff --git a/api/org-unit-role.pb.go b/api/org-unit-role.pb.go
+index 06f547c..91dcdbd 100644
+--- a/api/org-unit-role.pb.go
++++ b/api/org-unit-role.pb.go
+@@ -77,7 +77,15 @@ type OrgUnitRolesListEntry struct {
+ 	// role name, unique in an Org Unit
+ 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+ 	// role description, provding details about the role
+-	Desc          string `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
++	Desc string `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
++	// role type: "built-in" for system roles (admin, auditor) or "custom" for user-defined roles
++	Type string `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
++	// display name for custom roles (only applicable for custom roles)
++	DisplayName string `protobuf:"bytes,4,opt,name=displayName,proto3" json:"displayName,omitempty"`
++	// creation timestamp for custom roles (only applicable for custom roles)
++	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
++	// user who created the role for custom roles (only applicable for custom roles)
++	CreatedBy     string `protobuf:"bytes,6,opt,name=createdBy,proto3" json:"createdBy,omitempty"`
+ 	unknownFields protoimpl.UnknownFields
+ 	sizeCache     protoimpl.SizeCache
+ }
+@@ -126,7 +134,35 @@ func (x *OrgUnitRolesListEntry) GetDesc() string {
+ 	return ""
+ }
+ 
+-// org unit roles list response
++func (x *OrgUnitRolesListEntry) GetType() string {
++	if x != nil {
++		return x.Type
++	}
++	return ""
++}
++
++func (x *OrgUnitRolesListEntry) GetDisplayName() string {
++	if x != nil {
++		return x.DisplayName
++	}
++	return ""
++}
++
++func (x *OrgUnitRolesListEntry) GetCreated() int64 {
++	if x != nil {
++		return x.Created
++	}
++	return 0
++}
++
++func (x *OrgUnitRolesListEntry) GetCreatedBy() string {
++	if x != nil {
++		return x.CreatedBy
++	}
++	return ""
++}
++
++// org unit roles list response - includes both built-in and custom roles
+ type OrgUnitRolesListResp struct {
+ 	state protoimpl.MessageState `protogen:"open.v1"`
+ 	// list of roles available as part of the response
+@@ -361,7 +397,7 @@ type UpdateCustomRoleReq struct {
+ 	// Organization unit ID
+ 	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+ 	// Name of the custom role to update
+-	RoleName string `protobuf:"bytes,2,opt,name=roleName,proto3" json:"roleName,omitempty"`
++	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+ 	// Updated display name for the custom role
+ 	DisplayName string `protobuf:"bytes,3,opt,name=displayName,proto3" json:"displayName,omitempty"`
+ 	// Updated description explaining the purpose of this custom role
+@@ -409,9 +445,9 @@ func (x *UpdateCustomRoleReq) GetOu() string {
+ 	return ""
+ }
+ 
+-func (x *UpdateCustomRoleReq) GetRoleName() string {
++func (x *UpdateCustomRoleReq) GetName() string {
+ 	if x != nil {
+-		return x.RoleName
++		return x.Name
+ 	}
+ 	return ""
+ }
+@@ -489,7 +525,7 @@ type GetCustomRoleReq struct {
+ 	// Organization unit ID
+ 	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+ 	// Name of the custom role to retrieve
+-	RoleName      string `protobuf:"bytes,2,opt,name=roleName,proto3" json:"roleName,omitempty"`
++	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+ 	unknownFields protoimpl.UnknownFields
+ 	sizeCache     protoimpl.SizeCache
+ }
+@@ -531,9 +567,9 @@ func (x *GetCustomRoleReq) GetOu() string {
+ 	return ""
+ }
+ 
+-func (x *GetCustomRoleReq) GetRoleName() string {
++func (x *GetCustomRoleReq) GetName() string {
+ 	if x != nil {
+-		return x.RoleName
++		return x.Name
+ 	}
+ 	return ""
+ }
+@@ -653,7 +689,7 @@ type DeleteCustomRoleReq struct {
+ 	// Organization unit ID
+ 	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+ 	// Name of the custom role to delete
+-	RoleName      string `protobuf:"bytes,2,opt,name=roleName,proto3" json:"roleName,omitempty"`
++	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+ 	unknownFields protoimpl.UnknownFields
+ 	sizeCache     protoimpl.SizeCache
+ }
+@@ -695,9 +731,9 @@ func (x *DeleteCustomRoleReq) GetOu() string {
+ 	return ""
+ }
+ 
+-func (x *DeleteCustomRoleReq) GetRoleName() string {
++func (x *DeleteCustomRoleReq) GetName() string {
+ 	if x != nil {
+-		return x.RoleName
++		return x.Name
+ 	}
+ 	return ""
+ }
+@@ -964,10 +1000,14 @@ const file_org_unit_role_proto_rawDesc = "" +
+ 	"\n" +
+ 	"\x13org-unit-role.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\"%\n" +
+ 	"\x13OrgUnitRolesListReq\x12\x0e\n" +
+-	"\x02ou\x18\x01 \x01(\tR\x02ou\"?\n" +
++	"\x02ou\x18\x01 \x01(\tR\x02ou\"\xad\x01\n" +
+ 	"\x15OrgUnitRolesListEntry\x12\x12\n" +
+ 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+-	"\x04desc\x18\x02 \x01(\tR\x04desc\"H\n" +
++	"\x04desc\x18\x02 \x01(\tR\x04desc\x12\x12\n" +
++	"\x04type\x18\x03 \x01(\tR\x04type\x12 \n" +
++	"\vdisplayName\x18\x04 \x01(\tR\vdisplayName\x12\x18\n" +
++	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1c\n" +
++	"\tcreatedBy\x18\x06 \x01(\tR\tcreatedBy\"H\n" +
+ 	"\x14OrgUnitRolesListResp\x120\n" +
+ 	"\x05items\x18\x02 \x03(\v2\x1a.api.OrgUnitRolesListEntryR\x05items\"B\n" +
+ 	"\x0eRolePermission\x12\x1a\n" +
+@@ -980,18 +1020,18 @@ const file_org_unit_role_proto_rawDesc = "" +
+ 	"\vdescription\x18\x04 \x01(\tR\vdescription\x125\n" +
+ 	"\vpermissions\x18\x05 \x03(\v2\x13.api.RolePermissionR\vpermissions\"0\n" +
+ 	"\x14CreateCustomRoleResp\x12\x18\n" +
+-	"\amessage\x18\x01 \x01(\tR\amessage\"\xbc\x01\n" +
++	"\amessage\x18\x01 \x01(\tR\amessage\"\xb4\x01\n" +
+ 	"\x13UpdateCustomRoleReq\x12\x0e\n" +
+-	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x1a\n" +
+-	"\broleName\x18\x02 \x01(\tR\broleName\x12 \n" +
++	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
++	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+ 	"\vdisplayName\x18\x03 \x01(\tR\vdisplayName\x12 \n" +
+ 	"\vdescription\x18\x04 \x01(\tR\vdescription\x125\n" +
+ 	"\vpermissions\x18\x05 \x03(\v2\x13.api.RolePermissionR\vpermissions\"0\n" +
+ 	"\x14UpdateCustomRoleResp\x12\x18\n" +
+-	"\amessage\x18\x01 \x01(\tR\amessage\">\n" +
++	"\amessage\x18\x01 \x01(\tR\amessage\"6\n" +
+ 	"\x10GetCustomRoleReq\x12\x0e\n" +
+-	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x1a\n" +
+-	"\broleName\x18\x02 \x01(\tR\broleName\"\x92\x02\n" +
++	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
++	"\x04name\x18\x02 \x01(\tR\x04name\"\x92\x02\n" +
+ 	"\x11GetCustomRoleResp\x12\x12\n" +
+ 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+ 	"\vdisplayName\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
+@@ -1000,10 +1040,10 @@ const file_org_unit_role_proto_rawDesc = "" +
+ 	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1c\n" +
+ 	"\tcreatedBy\x18\x06 \x01(\tR\tcreatedBy\x12\x18\n" +
+ 	"\aupdated\x18\a \x01(\x03R\aupdated\x12\x1c\n" +
+-	"\tupdatedBy\x18\b \x01(\tR\tupdatedBy\"A\n" +
++	"\tupdatedBy\x18\b \x01(\tR\tupdatedBy\"9\n" +
+ 	"\x13DeleteCustomRoleReq\x12\x0e\n" +
+-	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x1a\n" +
+-	"\broleName\x18\x02 \x01(\tR\broleName\"0\n" +
++	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
++	"\x04name\x18\x02 \x01(\tR\x04name\"0\n" +
+ 	"\x14DeleteCustomRoleResp\x12\x18\n" +
+ 	"\amessage\x18\x01 \x01(\tR\amessage\"R\n" +
+ 	"\x12ListCustomRolesReq\x12\x0e\n" +
+@@ -1019,20 +1059,20 @@ const file_org_unit_role_proto_rawDesc = "" +
+ 	"\tcreatedBy\x18\x06 \x01(\tR\tcreatedBy\"[\n" +
+ 	"\x13ListCustomRolesResp\x12\x14\n" +
+ 	"\x05count\x18\x01 \x01(\x05R\x05count\x12.\n" +
+-	"\x05items\x18\x02 \x03(\v2\x18.api.CustomRoleListEntryR\x05items2\xb5\a\n" +
++	"\x05items\x18\x02 \x03(\v2\x18.api.CustomRoleListEntryR\x05items2\x89\a\n" +
+ 	"\vOrgUnitRole\x12\x88\x01\n" +
+ 	"\x10ListOrgUnitRoles\x12\x18.api.OrgUnitRolesListReq\x1a\x19.api.OrgUnitRolesListResp\"?\x8a\xb5\x18\x19\n" +
+-	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x9b\x01\n" +
+-	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"R\x8a\xb5\x18\"\n" +
+-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06create\x82\xd3\xe4\x93\x02&:\x01*\"!/api/auth/v1/ou/{ou}/custom-roles\x12\xa6\x01\n" +
+-	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"]\x8a\xb5\x18\"\n" +
+-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x021:\x01*\x1a,/api/auth/v1/ou/{ou}/custom-roles/{roleName}\x12\x97\x01\n" +
+-	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"W\x8a\xb5\x18\x1f\n" +
+-	"\x14org-unit-custom-role\x12\x02ou\x1a\x03get\x82\xd3\xe4\x93\x02.\x12,/api/auth/v1/ou/{ou}/custom-roles/{roleName}\x12\xa3\x01\n" +
+-	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"Z\x8a\xb5\x18\"\n" +
+-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02.*,/api/auth/v1/ou/{ou}/custom-roles/{roleName}\x12\x93\x01\n" +
++	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x93\x01\n" +
++	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"J\x8a\xb5\x18\"\n" +
++	"\x14org-unit-custom-role\x12\x02ou\x1a\x06create\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/role\x12\x9a\x01\n" +
++	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"Q\x8a\xb5\x18\"\n" +
++	"\x14org-unit-custom-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/role/{name}\x12\x8b\x01\n" +
++	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"K\x8a\xb5\x18\x1f\n" +
++	"\x14org-unit-custom-role\x12\x02ou\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/auth/v1/ou/{ou}/role/{name}\x12\x97\x01\n" +
++	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"N\x8a\xb5\x18\"\n" +
++	"\x14org-unit-custom-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/role/{name}\x12\x93\x01\n" +
+ 	"\x0fListCustomRoles\x12\x17.api.ListCustomRolesReq\x1a\x18.api.ListCustomRolesResp\"M\x8a\xb5\x18 \n" +
+-	"\x14org-unit-custom-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02#\x12!/api/auth/v1/ou/{ou}/custom-rolesB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
++	"\x14org-unit-custom-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02#\x12!/api/auth/v1/ou/{ou}/roles/customB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+ 
+ var (
+ 	file_org_unit_role_proto_rawDescOnce sync.Once
+diff --git a/api/org-unit-role.pb.gw.go b/api/org-unit-role.pb.gw.go
+index 1d5ba20..d97c9cb 100644
+--- a/api/org-unit-role.pb.gw.go
++++ b/api/org-unit-role.pb.gw.go
+@@ -131,13 +131,13 @@ func request_OrgUnitRole_UpdateCustomRole_0(ctx context.Context, marshaler runti
+ 	if err != nil {
+ 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ou", err)
+ 	}
+-	val, ok = pathParams["roleName"]
++	val, ok = pathParams["name"]
+ 	if !ok {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "roleName")
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+ 	}
+-	protoReq.RoleName, err = runtime.String(val)
++	protoReq.Name, err = runtime.String(val)
+ 	if err != nil {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roleName", err)
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+ 	}
+ 	msg, err := client.UpdateCustomRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+ 	return msg, metadata, err
+@@ -160,13 +160,13 @@ func local_request_OrgUnitRole_UpdateCustomRole_0(ctx context.Context, marshaler
+ 	if err != nil {
+ 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ou", err)
+ 	}
+-	val, ok = pathParams["roleName"]
++	val, ok = pathParams["name"]
+ 	if !ok {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "roleName")
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+ 	}
+-	protoReq.RoleName, err = runtime.String(val)
++	protoReq.Name, err = runtime.String(val)
+ 	if err != nil {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roleName", err)
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+ 	}
+ 	msg, err := server.UpdateCustomRole(ctx, &protoReq)
+ 	return msg, metadata, err
+@@ -187,13 +187,13 @@ func request_OrgUnitRole_GetCustomRole_0(ctx context.Context, marshaler runtime.
+ 	if err != nil {
+ 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ou", err)
+ 	}
+-	val, ok = pathParams["roleName"]
++	val, ok = pathParams["name"]
+ 	if !ok {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "roleName")
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+ 	}
+-	protoReq.RoleName, err = runtime.String(val)
++	protoReq.Name, err = runtime.String(val)
+ 	if err != nil {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roleName", err)
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+ 	}
+ 	msg, err := client.GetCustomRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+ 	return msg, metadata, err
+@@ -213,13 +213,13 @@ func local_request_OrgUnitRole_GetCustomRole_0(ctx context.Context, marshaler ru
+ 	if err != nil {
+ 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ou", err)
+ 	}
+-	val, ok = pathParams["roleName"]
++	val, ok = pathParams["name"]
+ 	if !ok {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "roleName")
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+ 	}
+-	protoReq.RoleName, err = runtime.String(val)
++	protoReq.Name, err = runtime.String(val)
+ 	if err != nil {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roleName", err)
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+ 	}
+ 	msg, err := server.GetCustomRole(ctx, &protoReq)
+ 	return msg, metadata, err
+@@ -240,13 +240,13 @@ func request_OrgUnitRole_DeleteCustomRole_0(ctx context.Context, marshaler runti
+ 	if err != nil {
+ 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ou", err)
+ 	}
+-	val, ok = pathParams["roleName"]
++	val, ok = pathParams["name"]
+ 	if !ok {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "roleName")
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+ 	}
+-	protoReq.RoleName, err = runtime.String(val)
++	protoReq.Name, err = runtime.String(val)
+ 	if err != nil {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roleName", err)
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+ 	}
+ 	msg, err := client.DeleteCustomRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+ 	return msg, metadata, err
+@@ -266,13 +266,13 @@ func local_request_OrgUnitRole_DeleteCustomRole_0(ctx context.Context, marshaler
+ 	if err != nil {
+ 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ou", err)
+ 	}
+-	val, ok = pathParams["roleName"]
++	val, ok = pathParams["name"]
+ 	if !ok {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "roleName")
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+ 	}
+-	protoReq.RoleName, err = runtime.String(val)
++	protoReq.Name, err = runtime.String(val)
+ 	if err != nil {
+-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roleName", err)
++		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+ 	}
+ 	msg, err := server.DeleteCustomRole(ctx, &protoReq)
+ 	return msg, metadata, err
+@@ -361,7 +361,7 @@ func RegisterOrgUnitRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux
+ 		var stream runtime.ServerTransportStream
+ 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/CreateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles"))
++		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/CreateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -381,7 +381,7 @@ func RegisterOrgUnitRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux
+ 		var stream runtime.ServerTransportStream
+ 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/UpdateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles/{roleName}"))
++		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/UpdateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role/{name}"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -401,7 +401,7 @@ func RegisterOrgUnitRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux
+ 		var stream runtime.ServerTransportStream
+ 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/GetCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles/{roleName}"))
++		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/GetCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role/{name}"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -421,7 +421,7 @@ func RegisterOrgUnitRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux
+ 		var stream runtime.ServerTransportStream
+ 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/DeleteCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles/{roleName}"))
++		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/DeleteCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role/{name}"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -441,7 +441,7 @@ func RegisterOrgUnitRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux
+ 		var stream runtime.ServerTransportStream
+ 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/ListCustomRoles", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles"))
++		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/ListCustomRoles", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/roles/custom"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -516,7 +516,7 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
+ 		ctx, cancel := context.WithCancel(req.Context())
+ 		defer cancel()
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/CreateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles"))
++		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/CreateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -533,7 +533,7 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
+ 		ctx, cancel := context.WithCancel(req.Context())
+ 		defer cancel()
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/UpdateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles/{roleName}"))
++		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/UpdateCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role/{name}"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -550,7 +550,7 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
+ 		ctx, cancel := context.WithCancel(req.Context())
+ 		defer cancel()
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/GetCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles/{roleName}"))
++		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/GetCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role/{name}"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -567,7 +567,7 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
+ 		ctx, cancel := context.WithCancel(req.Context())
+ 		defer cancel()
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/DeleteCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles/{roleName}"))
++		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/DeleteCustomRole", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/role/{name}"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -584,7 +584,7 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
+ 		ctx, cancel := context.WithCancel(req.Context())
+ 		defer cancel()
+ 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/ListCustomRoles", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/custom-roles"))
++		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/ListCustomRoles", runtime.WithHTTPPathPattern("/api/auth/v1/ou/{ou}/roles/custom"))
+ 		if err != nil {
+ 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+ 			return
+@@ -602,11 +602,11 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
+ 
+ var (
+ 	pattern_OrgUnitRole_ListOrgUnitRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "roles"}, ""))
+-	pattern_OrgUnitRole_CreateCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "custom-roles"}, ""))
+-	pattern_OrgUnitRole_UpdateCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "custom-roles", "roleName"}, ""))
+-	pattern_OrgUnitRole_GetCustomRole_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "custom-roles", "roleName"}, ""))
+-	pattern_OrgUnitRole_DeleteCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "custom-roles", "roleName"}, ""))
+-	pattern_OrgUnitRole_ListCustomRoles_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "custom-roles"}, ""))
++	pattern_OrgUnitRole_CreateCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "role"}, ""))
++	pattern_OrgUnitRole_UpdateCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
++	pattern_OrgUnitRole_GetCustomRole_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
++	pattern_OrgUnitRole_DeleteCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
++	pattern_OrgUnitRole_ListCustomRoles_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 2, 5}, []string{"api", "auth", "v1", "ou", "roles", "custom"}, ""))
+ )
+ 
+ var (
+diff --git a/api/org-unit-role.pb.route.go b/api/org-unit-role.pb.route.go
+index 6eeaed1..5fa29d8 100644
+--- a/api/org-unit-role.pb.route.go
++++ b/api/org-unit-role.pb.route.go
+@@ -18,35 +18,35 @@ func init() {
+ 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+ 
+ 	// Adding Route information for CreateCustomRole RPC
+-	route = model.NewRoute("/api/auth/v1/ou/{ou}/custom-roles", "POST")
++	route = model.NewRoute("/api/auth/v1/ou/{ou}/role", "POST")
+ 	route.Resource = "org-unit-custom-role"
+ 	route.Scopes = append(route.Scopes, "ou")
+ 	route.Verb = "create"
+ 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+ 
+ 	// Adding Route information for UpdateCustomRole RPC
+-	route = model.NewRoute("/api/auth/v1/ou/{ou}/custom-roles/{roleName}", "PUT")
++	route = model.NewRoute("/api/auth/v1/ou/{ou}/role/{name}", "PUT")
+ 	route.Resource = "org-unit-custom-role"
+ 	route.Scopes = append(route.Scopes, "ou")
+ 	route.Verb = "update"
+ 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+ 
+ 	// Adding Route information for GetCustomRole RPC
+-	route = model.NewRoute("/api/auth/v1/ou/{ou}/custom-roles/{roleName}", "GET")
++	route = model.NewRoute("/api/auth/v1/ou/{ou}/role/{name}", "GET")
+ 	route.Resource = "org-unit-custom-role"
+ 	route.Scopes = append(route.Scopes, "ou")
+ 	route.Verb = "get"
+ 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+ 
+ 	// Adding Route information for DeleteCustomRole RPC
+-	route = model.NewRoute("/api/auth/v1/ou/{ou}/custom-roles/{roleName}", "DELETE")
++	route = model.NewRoute("/api/auth/v1/ou/{ou}/role/{name}", "DELETE")
+ 	route.Resource = "org-unit-custom-role"
+ 	route.Scopes = append(route.Scopes, "ou")
+ 	route.Verb = "delete"
+ 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+ 
+ 	// Adding Route information for ListCustomRoles RPC
+-	route = model.NewRoute("/api/auth/v1/ou/{ou}/custom-roles", "GET")
++	route = model.NewRoute("/api/auth/v1/ou/{ou}/roles/custom", "GET")
+ 	route.Resource = "org-unit-custom-role"
+ 	route.Scopes = append(route.Scopes, "ou")
+ 	route.Verb = "list"
+diff --git a/api/org-unit-role.proto b/api/org-unit-role.proto
+index c35bd42..966fcfc 100644
+--- a/api/org-unit-role.proto
++++ b/api/org-unit-role.proto
+@@ -12,7 +12,7 @@ option go_package = "github.com/go-core-stack/auth-gateway/api";
+ 
+ // Service provided to manage org unit roles
+ service OrgUnitRole {
+-  // Get List of available org unit roles, for specifc orgranisation
++  // Get List of available org unit roles (both built-in and custom), for specific organisation
+   rpc ListOrgUnitRoles(OrgUnitRolesListReq) returns (OrgUnitRolesListResp) {
+     option (google.api.http) = {
+       get: "/api/auth/v1/ou/{ou}/roles"
+@@ -27,7 +27,7 @@ service OrgUnitRole {
+   // Create a new custom role for the organization unit
+   rpc CreateCustomRole(CreateCustomRoleReq) returns (CreateCustomRoleResp) {
+     option (google.api.http) = {
+-      post: "/api/auth/v1/ou/{ou}/custom-roles"
++      post: "/api/auth/v1/ou/{ou}/role"
+       body: "*"
+     };
+     option (api.role) = {
+@@ -40,7 +40,7 @@ service OrgUnitRole {
+   // Update an existing custom role for the organization unit
+   rpc UpdateCustomRole(UpdateCustomRoleReq) returns (UpdateCustomRoleResp) {
+     option (google.api.http) = {
+-      put: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
++      put: "/api/auth/v1/ou/{ou}/role/{name}"
+       body: "*"
+     };
+     option (api.role) = {
+@@ -53,7 +53,7 @@ service OrgUnitRole {
+   // Get details of a specific custom role
+   rpc GetCustomRole(GetCustomRoleReq) returns (GetCustomRoleResp) {
+     option (google.api.http) = {
+-      get: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
++      get: "/api/auth/v1/ou/{ou}/role/{name}"
+     };
+     option (api.role) = {
+       resource: "org-unit-custom-role"
+@@ -66,7 +66,7 @@ service OrgUnitRole {
+   // Delete (soft delete) a custom role from the organization unit
+   rpc DeleteCustomRole(DeleteCustomRoleReq) returns (DeleteCustomRoleResp) {
+     option (google.api.http) = {
+-      delete: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
++      delete: "/api/auth/v1/ou/{ou}/role/{name}"
+     };
+     option (api.role) = {
+       resource: "org-unit-custom-role"
+@@ -78,7 +78,7 @@ service OrgUnitRole {
+   // List all custom roles for the organization unit
+   rpc ListCustomRoles(ListCustomRolesReq) returns (ListCustomRolesResp) {
+     option (google.api.http) = {
+-      get: "/api/auth/v1/ou/{ou}/custom-roles"
++      get: "/api/auth/v1/ou/{ou}/roles/custom"
+     };
+     option (api.role) = {
+       resource: "org-unit-custom-role"
+@@ -100,9 +100,21 @@ message OrgUnitRolesListEntry {
+ 
+   // role description, provding details about the role
+   string desc = 2;
++
++  // role type: "built-in" for system roles (admin, auditor) or "custom" for user-defined roles
++  string type = 3;
++
++  // display name for custom roles (only applicable for custom roles)
++  string displayName = 4;
++
++  // creation timestamp for custom roles (only applicable for custom roles)
++  int64 created = 5;
++
++  // user who created the role for custom roles (only applicable for custom roles)
++  string createdBy = 6;
+ }
+ 
+-// org unit roles list response
++// org unit roles list response - includes both built-in and custom roles
+ message OrgUnitRolesListResp {
+   // eventually if we start working with longer list of roles
+   // keep first index for count to provide pagination
+@@ -151,7 +163,7 @@ message UpdateCustomRoleReq {
+   string ou = 1;
+ 
+   // Name of the custom role to update
+-  string roleName = 2;
++  string name = 2;
+ 
+   // Updated display name for the custom role
+   string displayName = 3;
+@@ -175,7 +187,7 @@ message GetCustomRoleReq {
+   string ou = 1;
+ 
+   // Name of the custom role to retrieve
+-  string roleName = 2;
++  string name = 2;
+ }
+ 
+ // Get custom role response
+@@ -211,7 +223,7 @@ message DeleteCustomRoleReq {
+   string ou = 1;
+ 
+   // Name of the custom role to delete
+-  string roleName = 2;
++  string name = 2;
+ }
+ 
+ // Delete custom role response
+diff --git a/api/org-unit-role_grpc.pb.go b/api/org-unit-role_grpc.pb.go
+index 450e012..1fb6769 100644
+--- a/api/org-unit-role_grpc.pb.go
++++ b/api/org-unit-role_grpc.pb.go
+@@ -36,7 +36,7 @@ const (
+ //
+ // Service provided to manage org unit roles
+ type OrgUnitRoleClient interface {
+-	// Get List of available org unit roles, for specifc orgranisation
++	// Get List of available org unit roles (both built-in and custom), for specific organisation
+ 	ListOrgUnitRoles(ctx context.Context, in *OrgUnitRolesListReq, opts ...grpc.CallOption) (*OrgUnitRolesListResp, error)
+ 	// Create a new custom role for the organization unit
+ 	CreateCustomRole(ctx context.Context, in *CreateCustomRoleReq, opts ...grpc.CallOption) (*CreateCustomRoleResp, error)
+@@ -125,7 +125,7 @@ func (c *orgUnitRoleClient) ListCustomRoles(ctx context.Context, in *ListCustomR
+ //
+ // Service provided to manage org unit roles
+ type OrgUnitRoleServer interface {
+-	// Get List of available org unit roles, for specifc orgranisation
++	// Get List of available org unit roles (both built-in and custom), for specific organisation
+ 	ListOrgUnitRoles(context.Context, *OrgUnitRolesListReq) (*OrgUnitRolesListResp, error)
+ 	// Create a new custom role for the organization unit
+ 	CreateCustomRole(context.Context, *CreateCustomRoleReq) (*CreateCustomRoleResp, error)
+diff --git a/api/swagger/apidocs.swagger.json b/api/swagger/apidocs.swagger.json
+index edd26f8..e5b5b4f 100644
+--- a/api/swagger/apidocs.swagger.json
++++ b/api/swagger/apidocs.swagger.json
+@@ -217,53 +217,7 @@
+         ]
+       }
+     },
+-    "/api/auth/v1/ou/{ou}/custom-roles": {
+-      "get": {
+-        "summary": "List all custom roles for the organization unit",
+-        "operationId": "OrgUnitRole_ListCustomRoles",
+-        "responses": {
+-          "200": {
+-            "description": "A successful response.",
+-            "schema": {
+-              "$ref": "#/definitions/apiListCustomRolesResp"
+-            }
+-          },
+-          "default": {
+-            "description": "An unexpected error response.",
+-            "schema": {
+-              "$ref": "#/definitions/googlerpcStatus"
+-            }
+-          }
+-        },
+-        "parameters": [
+-          {
+-            "name": "ou",
+-            "description": "Organization unit ID",
+-            "in": "path",
+-            "required": true,
+-            "type": "string"
+-          },
+-          {
+-            "name": "offset",
+-            "description": "Pagination offset",
+-            "in": "query",
+-            "required": false,
+-            "type": "integer",
+-            "format": "int32"
+-          },
+-          {
+-            "name": "limit",
+-            "description": "Pagination limit",
+-            "in": "query",
+-            "required": false,
+-            "type": "integer",
+-            "format": "int32"
+-          }
+-        ],
+-        "tags": [
+-          "OrgUnitRole"
+-        ]
+-      },
++    "/api/auth/v1/ou/{ou}/role": {
+       "post": {
+         "summary": "Create a new custom role for the organization unit",
+         "operationId": "OrgUnitRole_CreateCustomRole",
+@@ -303,7 +257,7 @@
+         ]
+       }
+     },
+-    "/api/auth/v1/ou/{ou}/custom-roles/{roleName}": {
++    "/api/auth/v1/ou/{ou}/role/{name}": {
+       "get": {
+         "summary": "Get details of a specific custom role",
+         "operationId": "OrgUnitRole_GetCustomRole",
+@@ -330,7 +284,7 @@
+             "type": "string"
+           },
+           {
+-            "name": "roleName",
++            "name": "name",
+             "description": "Name of the custom role to retrieve",
+             "in": "path",
+             "required": true,
+@@ -367,7 +321,7 @@
+             "type": "string"
+           },
+           {
+-            "name": "roleName",
++            "name": "name",
+             "description": "Name of the custom role to delete",
+             "in": "path",
+             "required": true,
+@@ -404,7 +358,7 @@
+             "type": "string"
+           },
+           {
+-            "name": "roleName",
++            "name": "name",
+             "description": "Name of the custom role to update",
+             "in": "path",
+             "required": true,
+@@ -426,7 +380,7 @@
+     },
+     "/api/auth/v1/ou/{ou}/roles": {
+       "get": {
+-        "summary": "Get List of available org unit roles, for specifc orgranisation",
++        "summary": "Get List of available org unit roles (both built-in and custom), for specific organisation",
+         "operationId": "OrgUnitRole_ListOrgUnitRoles",
+         "responses": {
+           "200": {
+@@ -456,6 +410,54 @@
+         ]
+       }
+     },
++    "/api/auth/v1/ou/{ou}/roles/custom": {
++      "get": {
++        "summary": "List all custom roles for the organization unit",
++        "operationId": "OrgUnitRole_ListCustomRoles",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiListCustomRolesResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "Organization unit ID",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "offset",
++            "description": "Pagination offset",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          },
++          {
++            "name": "limit",
++            "description": "Pagination limit",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      }
++    },
+     "/api/auth/v1/ou/{ou}/user": {
+       "post": {
+         "summary": "Add user to the org unit",
+@@ -2740,6 +2742,23 @@
+         "desc": {
+           "type": "string",
+           "title": "role description, provding details about the role"
++        },
++        "type": {
++          "type": "string",
++          "title": "role type: \"built-in\" for system roles (admin, auditor) or \"custom\" for user-defined roles"
++        },
++        "displayName": {
++          "type": "string",
++          "title": "display name for custom roles (only applicable for custom roles)"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "creation timestamp for custom roles (only applicable for custom roles)"
++        },
++        "createdBy": {
++          "type": "string",
++          "title": "user who created the role for custom roles (only applicable for custom roles)"
+         }
+       }
+     },
+@@ -2756,7 +2775,7 @@
+         }
+       },
+       "description": "eventually if we start working with longer list of roles\n keep first index for count to provide pagination\n int32 count = 1;",
+-      "title": "org unit roles list response"
++      "title": "org unit roles list response - includes both built-in and custom roles"
+     },
+     "apiOrgUnitUpdateResp": {
+       "type": "object"
+diff --git a/pkg/server/org-unit-role.go b/pkg/server/org-unit-role.go
+index 13c4cdf..bea2910 100644
+--- a/pkg/server/org-unit-role.go
++++ b/pkg/server/org-unit-role.go
+@@ -27,22 +27,48 @@ type OrgUnitRoleServer struct {
+ 
+ func (s *OrgUnitRoleServer) ListOrgUnitRoles(ctx context.Context, req *api.OrgUnitRolesListReq) (*api.OrgUnitRolesListResp, error) {
+ 	log.Printf("received list request for org unit roles: %v", req)
+-	resp := &api.OrgUnitRolesListResp{
+-		Items: []*api.OrgUnitRolesListEntry{
+-			{
+-				Name: "default",
+-				Desc: "Standard user role to provide access to all the resources available in the Organization Unit",
+-			},
+-			{
+-				Name: "admin",
+-				Desc: "Administrator role to provide access to everything in the Organization Unit including management of users and resources",
+-			},
+-			{
+-				Name: "auditor",
+-				Desc: "Auditor role to provider read-only access to all the resources available in the Organization Unit",
+-			},
++
++	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
++	if authInfo == nil {
++		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
++	}
++
++	// Start with built-in roles
++	items := []*api.OrgUnitRolesListEntry{
++		{
++			Name: "admin",
++			Desc: "Administrator role to provide access to everything in the Organization Unit including management of users and resources",
++			Type: "built-in",
++		},
++		{
++			Name: "auditor",
++			Desc: "Auditor role to provider read-only access to all the resources available in the Organization Unit",
++			Type: "built-in",
+ 		},
+ 	}
++
++	// Get custom roles and add them to the list
++	customRoles, err := s.customRoleTable.GetByOrgUnit(ctx, authInfo.Realm, req.Ou, 0, 0) // Get all custom roles (no pagination)
++	if err != nil {
++		log.Printf("failed to list custom roles: %s", err)
++		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
++	}
++
++	// Add custom roles to the response
++	for _, role := range customRoles {
++		items = append(items, &api.OrgUnitRolesListEntry{
++			Name:        role.Key.Name,    // Custom role name
++			Desc:        role.Description, // Custom role description
++			Type:        "custom",         // Mark as custom role
++			DisplayName: role.DisplayName, // Custom role display name
++			Created:     role.Created,     // Creation timestamp
++			CreatedBy:   role.CreatedBy,   // Creator username
++		})
++	}
++
++	resp := &api.OrgUnitRolesListResp{
++		Items: items,
++	}
+ 	return resp, nil
+ }
+ 
+@@ -164,14 +190,14 @@ func (s *OrgUnitRoleServer) UpdateCustomRole(ctx context.Context, req *api.Updat
+ 	key := &table.OrgUnitCustomRoleKey{
+ 		Tenant:    authInfo.Realm, // Current user's tenant
+ 		OrgUnitId: req.Ou,         // Organization unit ID from request
+-		Name:      req.RoleName,   // Role name to update
++		Name:      req.Name,       // Role name to update
+ 	}
+ 
+ 	// Update the custom role in the database
+ 	err := s.customRoleTable.Update(ctx, key, updateRole)
+ 	if err != nil {
+ 		if errors.IsNotFound(err) {
+-			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.RoleName)
++			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.Name)
+ 		}
+ 		log.Printf("failed to update custom role: %s", err)
+ 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+@@ -190,10 +216,10 @@ func (s *OrgUnitRoleServer) GetCustomRole(ctx context.Context, req *api.GetCusto
+ 	}
+ 
+ 	// Find the custom role by name and org unit
+-	customRole, err := s.customRoleTable.FindByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, req.RoleName)
++	customRole, err := s.customRoleTable.FindByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, req.Name)
+ 	if err != nil {
+ 		if errors.IsNotFound(err) {
+-			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.RoleName)
++			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.Name)
+ 		}
+ 		log.Printf("failed to get custom role: %s", err)
+ 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+@@ -231,14 +257,14 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
+ 	key := &table.OrgUnitCustomRoleKey{
+ 		Tenant:    authInfo.Realm, // Current user's tenant
+ 		OrgUnitId: req.Ou,         // Organization unit ID from request
+-		Name:      req.RoleName,   // Role name to delete
++		Name:      req.Name,       // Role name to delete
+ 	}
+ 
+ 	// Perform binding-aware deletion (soft delete if bindings exist, permanent delete otherwise)
+ 	err := s.customRoleTable.DeleteCustomRoleWithBindingCheck(ctx, key, authInfo.UserName)
+ 	if err != nil {
+ 		if errors.IsNotFound(err) {
+-			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.RoleName)
++			return nil, status.Errorf(codes.NotFound, "Custom role '%s' not found in organization unit", req.Name)
+ 		}
+ 		log.Printf("failed to delete custom role: %s", err)
+ 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+diff --git a/swagger/apidocs/swagger.json b/swagger/apidocs/swagger.json
+index 120d876..e5b5b4f 100644
+--- a/swagger/apidocs/swagger.json
++++ b/swagger/apidocs/swagger.json
+@@ -8,6 +8,18 @@
+     {
+       "name": "MyAccount"
+     },
++    {
++      "name": "Customer"
++    },
++    {
++      "name": "OrgUnit"
++    },
++    {
++      "name": "OrgUnitRole"
++    },
++    {
++      "name": "OrgUnitUser"
++    },
+     {
+       "name": "Registration"
+     },
+@@ -20,17 +32,604 @@
+     {
+       "name": "TenantUser"
+     },
+-    {
+-      "name": "User"
+-    }
+-  ],
+-  "consumes": [
+-    "application/json"
+-  ],
+-  "produces": [
+-    "application/json"
+-  ],
+-  "paths": {
++    {
++      "name": "User"
++    }
++  ],
++  "consumes": [
++    "application/json"
++  ],
++  "produces": [
++    "application/json"
++  ],
++  "paths": {
++    "/api/auth/v1/customer": {
++      "post": {
++        "summary": "Add new customer",
++        "operationId": "Customer_AddCustomer",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiCustomerAddResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/apiCustomerAddReq"
++            }
++          }
++        ],
++        "tags": [
++          "Customer"
++        ]
++      }
++    },
++    "/api/auth/v1/customer/{id}": {
++      "get": {
++        "summary": "get an existing customer details",
++        "operationId": "Customer_GetCustomer",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiCustomerGetResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "id",
++            "description": "id of the customer",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "Customer"
++        ]
++      },
++      "delete": {
++        "summary": "delete an existing customer",
++        "operationId": "Customer_DeleteCustomer",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiCustomerDeleteResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "id",
++            "description": "customer id",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "Customer"
++        ]
++      },
++      "put": {
++        "summary": "Update an existing customer details",
++        "operationId": "Customer_UpdateCustomer",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiCustomerUpdateResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "id",
++            "description": "id of the customer",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/CustomerUpdateCustomerBody"
++            }
++          }
++        ],
++        "tags": [
++          "Customer"
++        ]
++      }
++    },
++    "/api/auth/v1/customers": {
++      "get": {
++        "summary": "Get List of existing customers",
++        "operationId": "Customer_ListCustomers",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiCustomersListResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "offset",
++            "description": "offset from where to start the list of customers",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          },
++          {
++            "name": "limit",
++            "description": "limit the response to specified count",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          }
++        ],
++        "tags": [
++          "Customer"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/role": {
++      "post": {
++        "summary": "Create a new custom role for the organization unit",
++        "operationId": "OrgUnitRole_CreateCustomRole",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiCreateCustomRoleResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "Organization unit ID",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/OrgUnitRoleCreateCustomRoleBody"
++            }
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/role/{name}": {
++      "get": {
++        "summary": "Get details of a specific custom role",
++        "operationId": "OrgUnitRole_GetCustomRole",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiGetCustomRoleResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "Organization unit ID",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "name",
++            "description": "Name of the custom role to retrieve",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      },
++      "delete": {
++        "summary": "Delete a custom role from the organization unit\nDelete (soft delete) a custom role from the organization unit",
++        "operationId": "OrgUnitRole_DeleteCustomRole",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiDeleteCustomRoleResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "Organization unit ID",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "name",
++            "description": "Name of the custom role to delete",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      },
++      "put": {
++        "summary": "Update an existing custom role for the organization unit",
++        "operationId": "OrgUnitRole_UpdateCustomRole",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiUpdateCustomRoleResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "Organization unit ID",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "name",
++            "description": "Name of the custom role to update",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/OrgUnitRoleUpdateCustomRoleBody"
++            }
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/roles": {
++      "get": {
++        "summary": "Get List of available org unit roles (both built-in and custom), for specific organisation",
++        "operationId": "OrgUnitRole_ListOrgUnitRoles",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitRolesListResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "org unit under consideration",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/roles/custom": {
++      "get": {
++        "summary": "List all custom roles for the organization unit",
++        "operationId": "OrgUnitRole_ListCustomRoles",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiListCustomRolesResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "Organization unit ID",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "offset",
++            "description": "Pagination offset",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          },
++          {
++            "name": "limit",
++            "description": "Pagination limit",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          }
++        ],
++        "tags": [
++          "OrgUnitRole"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/user": {
++      "post": {
++        "summary": "Add user to the org unit",
++        "operationId": "OrgUnitUser_AddOrgUnitUser",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitUserAddResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "org unit under consideration",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/OrgUnitUserAddOrgUnitUserBody"
++            }
++          }
++        ],
++        "tags": [
++          "OrgUnitUser"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/user/{user}": {
++      "delete": {
++        "summary": "delete user role to the org unit",
++        "operationId": "OrgUnitUser_DeleteOrgUnitUser",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitUserDeleteResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "org unit under consideration",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "user",
++            "description": "username to delete",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "OrgUnitUser"
++        ]
++      },
++      "put": {
++        "summary": "Update user role to the org unit",
++        "operationId": "OrgUnitUser_UpdateOrgUnitUser",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitUserUpdateResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "org unit under consideration",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "user",
++            "description": "user name",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/OrgUnitUserUpdateOrgUnitUserBody"
++            }
++          }
++        ],
++        "tags": [
++          "OrgUnitUser"
++        ]
++      }
++    },
++    "/api/auth/v1/ou/{ou}/users": {
++      "get": {
++        "summary": "Get List of available org unit users",
++        "operationId": "OrgUnitUser_ListOrgUnitUsers",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitUsersListResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "ou",
++            "description": "org unit under consideration",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
++          {
++            "name": "offset",
++            "description": "offset to start from",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          },
++          {
++            "name": "limit",
++            "description": "limit the number of entries in the response",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          }
++        ],
++        "tags": [
++          "OrgUnitUser"
++        ]
++      }
++    },
+     "/api/auth/v1/resources": {
+       "get": {
+         "summary": "Get Resource definitions along with available actions",
+@@ -745,21 +1344,280 @@
+               "$ref": "#/definitions/googlerpcStatus"
+             }
+           }
+-        },
++        },
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/myaccount/v1/logout-sessions": {
++      "post": {
++        "summary": "logout my active session(/s), if a specific session id is\nnot provided, it will logout all sessions except the current one",
++        "operationId": "MyAccount_LogoutMySessions",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiMySessionsLogoutResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/apiMySessionsLogoutReq"
++            }
++          }
++        ],
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/myaccount/v1/org-unit/{id}/default": {
++      "post": {
++        "summary": "set specific Org unit as default access on login\nrelevant only when working with multiple org units",
++        "operationId": "MyAccount_SetDefaultOrgUnit",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiDefaultOrgUnitResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "id",
++            "description": "id of the Org Unit to be set as default",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/myaccount/v1/org-units": {
++      "get": {
++        "summary": "list all Org units available for me",
++        "operationId": "MyAccount_ListMyOrgUnits",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiMyOrgUnitsListResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/myaccount/v1/region/{region}/azs": {
++      "get": {
++        "summary": "Get List of availability zones in a given region for the user",
++        "operationId": "MyAccount_ListMyAzs",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiMyAzsListResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "region",
++            "description": "region under consideration",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/myaccount/v1/regions": {
++      "get": {
++        "summary": "Get List of available regions for user to work with",
++        "operationId": "MyAccount_ListMyRegions",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiMyRegionsListResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/myaccount/v1/sessions": {
++      "get": {
++        "summary": "get all my active sessions",
++        "operationId": "MyAccount_GetMySessions",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiMySessionsGetResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "tags": [
++          "MyAccount"
++        ]
++      }
++    },
++    "/api/mytenant/v1/ou": {
++      "post": {
++        "summary": "Create new org unit for my tenant",
++        "operationId": "OrgUnit_CreateOrgUnit",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitCreateResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "body",
++            "in": "body",
++            "required": true,
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitCreateReq"
++            }
++          }
++        ],
++        "tags": [
++          "OrgUnit"
++        ]
++      }
++    },
++    "/api/mytenant/v1/ou/{id}": {
++      "get": {
++        "summary": "get an existing org unit for my tenant",
++        "operationId": "OrgUnit_GetOrgUnit",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitGetResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "id",
++            "description": "id of the org unit",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
++        "tags": [
++          "OrgUnit"
++        ]
++      },
++      "delete": {
++        "summary": "delete an existing org unit for my tenant",
++        "operationId": "OrgUnit_DeleteOrgUnit",
++        "responses": {
++          "200": {
++            "description": "A successful response.",
++            "schema": {
++              "$ref": "#/definitions/apiOrgUnitDeleteResp"
++            }
++          },
++          "default": {
++            "description": "An unexpected error response.",
++            "schema": {
++              "$ref": "#/definitions/googlerpcStatus"
++            }
++          }
++        },
++        "parameters": [
++          {
++            "name": "id",
++            "description": "org unit id",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          }
++        ],
+         "tags": [
+-          "MyAccount"
++          "OrgUnit"
+         ]
+-      }
+-    },
+-    "/api/myaccount/v1/logout-sessions": {
+-      "post": {
+-        "summary": "logout my active session(/s), if a specific session id is\nnot provided, it will logout all sessions except the current one",
+-        "operationId": "MyAccount_LogoutMySessions",
++      },
++      "put": {
++        "summary": "Update an existing org unit for my tenant",
++        "operationId": "OrgUnit_UpdateOrgUnit",
+         "responses": {
+           "200": {
+             "description": "A successful response.",
+             "schema": {
+-              "$ref": "#/definitions/apiMySessionsLogoutResp"
++              "$ref": "#/definitions/apiOrgUnitUpdateResp"
+             }
+           },
+           "default": {
+@@ -770,29 +1628,36 @@
+           }
+         },
+         "parameters": [
++          {
++            "name": "id",
++            "description": "id of the org unit",
++            "in": "path",
++            "required": true,
++            "type": "string"
++          },
+           {
+             "name": "body",
+             "in": "body",
+             "required": true,
+             "schema": {
+-              "$ref": "#/definitions/apiMySessionsLogoutReq"
++              "$ref": "#/definitions/OrgUnitUpdateOrgUnitBody"
+             }
+           }
+         ],
+         "tags": [
+-          "MyAccount"
++          "OrgUnit"
+         ]
+       }
+     },
+-    "/api/myaccount/v1/sessions": {
++    "/api/mytenant/v1/ous": {
+       "get": {
+-        "summary": "get all my active sessions",
+-        "operationId": "MyAccount_GetMySessions",
++        "summary": "Get List of existing org units in my tenant",
++        "operationId": "OrgUnit_ListOrgUnits",
+         "responses": {
+           "200": {
+             "description": "A successful response.",
+             "schema": {
+-              "$ref": "#/definitions/apiMySessionsGetResp"
++              "$ref": "#/definitions/apiOrgUnitsListResp"
+             }
+           },
+           "default": {
+@@ -802,8 +1667,26 @@
+             }
+           }
+         },
++        "parameters": [
++          {
++            "name": "offset",
++            "description": "offset from where to start the list of org units",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          },
++          {
++            "name": "limit",
++            "description": "limit the response to specified count",
++            "in": "query",
++            "required": false,
++            "type": "integer",
++            "format": "int32"
++          }
++        ],
+         "tags": [
+-          "MyAccount"
++          "OrgUnit"
+         ]
+       }
+     },
+@@ -1195,6 +2078,115 @@
+     }
+   },
+   "definitions": {
++    "CustomerDefsTenancy": {
++      "type": "string",
++      "enum": [
++        "Dedicated",
++        "Shared"
++      ],
++      "default": "Dedicated",
++      "title": "- Dedicated: dedicated tenancy customer\ntypically assigned for Orgs requiring user management\nwith custom SSO integrations, requiring extra security\ncontrols\n - Shared: Shared tenancy customer\ntypically assigned for individuals or group of\nindividuals, where users can authenticate using public\nSSO and authz can be managed by admins"
++    },
++    "CustomerUpdateCustomerBody": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "display name for the customer"
++        },
++        "desc": {
++          "type": "string",
++          "title": "customer description"
++        }
++      },
++      "title": "request for update of an existing customer"
++    },
++    "OrgUnitRoleCreateCustomRoleBody": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "Name of the custom role (must be unique within the org unit)"
++        },
++        "displayName": {
++          "type": "string",
++          "title": "Display name for the custom role"
++        },
++        "description": {
++          "type": "string",
++          "title": "Description explaining the purpose of this custom role"
++        },
++        "permissions": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiRolePermission"
++          },
++          "title": "List of permissions granted by this custom role"
++        }
++      },
++      "title": "Create custom role request"
++    },
++    "OrgUnitRoleUpdateCustomRoleBody": {
++      "type": "object",
++      "properties": {
++        "displayName": {
++          "type": "string",
++          "title": "Updated display name for the custom role"
++        },
++        "description": {
++          "type": "string",
++          "title": "Updated description explaining the purpose of this custom role"
++        },
++        "permissions": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiRolePermission"
++          },
++          "title": "Updated list of permissions granted by this custom role"
++        }
++      },
++      "title": "Update custom role request"
++    },
++    "OrgUnitUpdateOrgUnitBody": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "display name for the org unit"
++        },
++        "desc": {
++          "type": "string",
++          "title": "org unit description"
++        }
++      },
++      "title": "request for update of an existing org unit"
++    },
++    "OrgUnitUserAddOrgUnitUserBody": {
++      "type": "object",
++      "properties": {
++        "user": {
++          "type": "string",
++          "title": "user name"
++        },
++        "role": {
++          "type": "string",
++          "title": "org unit role"
++        }
++      },
++      "title": "org unit user role add request"
++    },
++    "OrgUnitUserUpdateOrgUnitUserBody": {
++      "type": "object",
++      "properties": {
++        "role": {
++          "type": "string",
++          "title": "org unit role"
++        }
++      },
++      "title": "org unit user role update request"
++    },
+     "apiApiKeyCreateReq": {
+       "type": "object",
+       "properties": {
+@@ -1264,47 +2256,295 @@
+     "apiApiKeyEnableResp": {
+       "type": "object"
+     },
+-    "apiApiKeyListEntry": {
++    "apiApiKeyListEntry": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "name of the api key provided by the creator"
++        },
++        "id": {
++          "type": "string",
++          "title": "ID of the access key that will be used by the\nclient and server to identify ApiKey in use"
++        },
++        "status": {
++          "$ref": "#/definitions/apiApiKeyDefStatus",
++          "title": "current status of the Api Key"
++        },
++        "lastUsed": {
++          "type": "string",
++          "format": "int64",
++          "title": "timestamp when the api key was used last time"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "timestamp when the api key was created"
++        },
++        "expireAt": {
++          "type": "string",
++          "format": "int64",
++          "title": "timestamp when the api key will expire"
++        }
++      }
++    },
++    "apiApiKeysListResp": {
++      "type": "object",
++      "properties": {
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiApiKeyListEntry"
++          }
++        }
++      }
++    },
++    "apiCreateCustomRoleResp": {
++      "type": "object",
++      "properties": {
++        "message": {
++          "type": "string",
++          "title": "Confirmation message"
++        }
++      },
++      "title": "Create custom role response"
++    },
++    "apiCustomRoleListEntry": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "Name of the custom role"
++        },
++        "displayName": {
++          "type": "string",
++          "title": "Display name for the custom role"
++        },
++        "description": {
++          "type": "string",
++          "title": "Description explaining the purpose of this custom role"
++        },
++        "permissionCount": {
++          "type": "integer",
++          "format": "int32",
++          "title": "Number of permissions associated with this role"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "Timestamp when the role was created"
++        },
++        "createdBy": {
++          "type": "string",
++          "title": "User who created this custom role"
++        }
++      },
++      "title": "Custom role list entry"
++    },
++    "apiCustomerAddReq": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "display name for the customer"
++        },
++        "desc": {
++          "type": "string",
++          "title": "customer description"
++        },
++        "tenancy": {
++          "$ref": "#/definitions/CustomerDefsTenancy",
++          "title": "customer tenancy type, cannot be changed\nonce created"
++        }
++      },
++      "title": "request for addition of new customer"
++    },
++    "apiCustomerAddResp": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "id of the customer created"
++        }
++      },
++      "title": "response for addition of new customer"
++    },
++    "apiCustomerDeleteResp": {
++      "type": "object"
++    },
++    "apiCustomerGetResp": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "customer id"
++        },
++        "name": {
++          "type": "string",
++          "title": "customer display name"
++        },
++        "desc": {
++          "type": "string",
++          "title": "customer description"
++        },
++        "createdBy": {
++          "type": "string",
++          "title": "created by"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "create time"
++        },
++        "tenancy": {
++          "$ref": "#/definitions/CustomerDefsTenancy",
++          "title": "customer tenancy type"
++        }
++      }
++    },
++    "apiCustomerUpdateResp": {
++      "type": "object"
++    },
++    "apiCustomersListEntry": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "customer id"
++        },
++        "name": {
++          "type": "string",
++          "title": "customer display name"
++        },
++        "desc": {
++          "type": "string",
++          "title": "customer description"
++        },
++        "tenancy": {
++          "$ref": "#/definitions/CustomerDefsTenancy",
++          "title": "customer tenancy type"
++        }
++      }
++    },
++    "apiCustomersListResp": {
++      "type": "object",
++      "properties": {
++        "count": {
++          "type": "integer",
++          "format": "int32",
++          "title": "count of customers available"
++        },
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiCustomersListEntry"
++          },
++          "title": "list of customer info in response"
++        }
++      },
++      "title": "list customers response"
++    },
++    "apiDefaultOrgUnitResp": {
++      "type": "object"
++    },
++    "apiDeleteCustomRoleResp": {
++      "type": "object",
++      "properties": {
++        "message": {
++          "type": "string",
++          "title": "Confirmation message"
++        }
++      },
++      "title": "Delete custom role response"
++    },
++    "apiGetCustomRoleResp": {
+       "type": "object",
+       "properties": {
+         "name": {
+           "type": "string",
+-          "title": "name of the api key provided by the creator"
++          "title": "Name of the custom role"
+         },
+-        "id": {
++        "displayName": {
+           "type": "string",
+-          "title": "ID of the access key that will be used by the\nclient and server to identify ApiKey in use"
++          "title": "Display name for the custom role"
+         },
+-        "status": {
+-          "$ref": "#/definitions/apiApiKeyDefStatus",
+-          "title": "current status of the Api Key"
+-        },
+-        "lastUsed": {
++        "description": {
+           "type": "string",
+-          "format": "int64",
+-          "title": "timestamp when the api key was used last time"
++          "title": "Description explaining the purpose of this custom role"
++        },
++        "permissions": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiRolePermission"
++          },
++          "title": "List of permissions granted by this custom role"
+         },
+         "created": {
+           "type": "string",
+           "format": "int64",
+-          "title": "timestamp when the api key was created"
++          "title": "Timestamp when the role was created"
+         },
+-        "expireAt": {
++        "createdBy": {
++          "type": "string",
++          "title": "User who created this custom role"
++        },
++        "updated": {
+           "type": "string",
+           "format": "int64",
+-          "title": "timestamp when the api key will expire"
++          "title": "Timestamp when the role was last updated"
++        },
++        "updatedBy": {
++          "type": "string",
++          "title": "User who last updated this custom role"
++        }
++      },
++      "title": "Get custom role response"
++    },
++    "apiListCustomRolesResp": {
++      "type": "object",
++      "properties": {
++        "count": {
++          "type": "integer",
++          "format": "int32",
++          "title": "Total count of custom roles for pagination"
++        },
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiCustomRoleListEntry"
++          },
++          "title": "List of custom roles"
++        }
++      },
++      "title": "List custom roles response"
++    },
++    "apiMyAzsListEntry": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "identifier of the availability zone"
++        },
++        "name": {
++          "type": "string",
++          "title": "name of the availability zone"
+         }
+       }
+     },
+-    "apiApiKeysListResp": {
++    "apiMyAzsListResp": {
+       "type": "object",
+       "properties": {
+         "items": {
+           "type": "array",
+           "items": {
+             "type": "object",
+-            "$ref": "#/definitions/apiApiKeyListEntry"
+-          }
++            "$ref": "#/definitions/apiMyAzsListEntry"
++          },
++          "title": "list of available azs for the tenant\nunder a region"
+         }
+       }
+     },
+@@ -1329,6 +2569,66 @@
+         }
+       }
+     },
++    "apiMyOrgUnitEntry": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "org unit id"
++        },
++        "name": {
++          "type": "string",
++          "title": "org unit display name"
++        }
++      }
++    },
++    "apiMyOrgUnitsListResp": {
++      "type": "object",
++      "properties": {
++        "default": {
++          "$ref": "#/definitions/apiMyOrgUnitEntry",
++          "title": "default Org Unit for the user"
++        },
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiMyOrgUnitEntry"
++          },
++          "title": "list of available org units for user\ninclusive of default Org unit"
++        }
++      }
++    },
++    "apiMyRegionsListEntry": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "identifier of the region"
++        },
++        "name": {
++          "type": "string",
++          "title": "name of the region typically unique for tenant"
++        }
++      }
++    },
++    "apiMyRegionsListResp": {
++      "type": "object",
++      "properties": {
++        "default": {
++          "$ref": "#/definitions/apiMyRegionsListEntry",
++          "title": "default region for the user"
++        },
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiMyRegionsListEntry"
++          },
++          "title": "list of available regions for the tenant\ninclusive of the set default region"
++        }
++      }
++    },
+     "apiMySessionInfo": {
+       "type": "object",
+       "properties": {
+@@ -1379,6 +2679,205 @@
+       "type": "object",
+       "title": "session logout empty response"
+     },
++    "apiOrgUnitCreateReq": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "display name for the org unit"
++        },
++        "desc": {
++          "type": "string",
++          "title": "org unit description"
++        }
++      },
++      "title": "request for creation of new org unit"
++    },
++    "apiOrgUnitCreateResp": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "id of the org unit created"
++        }
++      },
++      "title": "response for creation of new org unit"
++    },
++    "apiOrgUnitDeleteResp": {
++      "type": "object"
++    },
++    "apiOrgUnitGetResp": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "org unit id"
++        },
++        "name": {
++          "type": "string",
++          "title": "org unit display name"
++        },
++        "desc": {
++          "type": "string",
++          "title": "org unit description"
++        },
++        "createdBy": {
++          "type": "string",
++          "title": "created by"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "create time"
++        }
++      }
++    },
++    "apiOrgUnitRolesListEntry": {
++      "type": "object",
++      "properties": {
++        "name": {
++          "type": "string",
++          "title": "role name, unique in an Org Unit"
++        },
++        "desc": {
++          "type": "string",
++          "title": "role description, provding details about the role"
++        },
++        "type": {
++          "type": "string",
++          "title": "role type: \"built-in\" for system roles (admin, auditor) or \"custom\" for user-defined roles"
++        },
++        "displayName": {
++          "type": "string",
++          "title": "display name for custom roles (only applicable for custom roles)"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "creation timestamp for custom roles (only applicable for custom roles)"
++        },
++        "createdBy": {
++          "type": "string",
++          "title": "user who created the role for custom roles (only applicable for custom roles)"
++        }
++      }
++    },
++    "apiOrgUnitRolesListResp": {
++      "type": "object",
++      "properties": {
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiOrgUnitRolesListEntry"
++          },
++          "title": "list of roles available as part of the response"
++        }
++      },
++      "description": "eventually if we start working with longer list of roles\n keep first index for count to provide pagination\n int32 count = 1;",
++      "title": "org unit roles list response - includes both built-in and custom roles"
++    },
++    "apiOrgUnitUpdateResp": {
++      "type": "object"
++    },
++    "apiOrgUnitUserAddResp": {
++      "type": "object",
++      "title": "org unit user role add response"
++    },
++    "apiOrgUnitUserDeleteResp": {
++      "type": "object",
++      "title": "org unit user role delete response"
++    },
++    "apiOrgUnitUserListEntry": {
++      "type": "object",
++      "properties": {
++        "username": {
++          "type": "string",
++          "title": "username"
++        },
++        "firstname": {
++          "type": "string",
++          "title": "first name of the user"
++        },
++        "lastname": {
++          "type": "string",
++          "title": "last name of the user"
++        },
++        "role": {
++          "type": "string",
++          "title": "role associated with the user"
++        }
++      },
++      "title": "Org unit user list entry"
++    },
++    "apiOrgUnitUserUpdateResp": {
++      "type": "object",
++      "title": "org unit user role update response"
++    },
++    "apiOrgUnitUsersListResp": {
++      "type": "object",
++      "properties": {
++        "count": {
++          "type": "integer",
++          "format": "int32",
++          "title": "count of the users in the ou"
++        },
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiOrgUnitUserListEntry"
++          },
++          "title": "list of users as part of current response"
++        }
++      },
++      "title": "response to the list org unit users request"
++    },
++    "apiOrgUnitsListEntry": {
++      "type": "object",
++      "properties": {
++        "id": {
++          "type": "string",
++          "title": "org unit id"
++        },
++        "name": {
++          "type": "string",
++          "title": "org unit display name"
++        },
++        "desc": {
++          "type": "string",
++          "title": "org unit description"
++        },
++        "createdBy": {
++          "type": "string",
++          "title": "created by"
++        },
++        "created": {
++          "type": "string",
++          "format": "int64",
++          "title": "create time"
++        }
++      }
++    },
++    "apiOrgUnitsListResp": {
++      "type": "object",
++      "properties": {
++        "count": {
++          "type": "integer",
++          "format": "int32",
++          "title": "count of Org units available"
++        },
++        "items": {
++          "type": "array",
++          "items": {
++            "type": "object",
++            "$ref": "#/definitions/apiOrgUnitsListEntry"
++          },
++          "title": "list of org unit info in response"
++        }
++      },
++      "title": "list org units response"
++    },
+     "apiRegisterOtpReq": {
+       "type": "object",
+       "properties": {
+@@ -1430,6 +2929,23 @@
+       },
+       "title": "resource get response"
+     },
++    "apiRolePermission": {
++      "type": "object",
++      "properties": {
++        "resource": {
++          "type": "string",
++          "title": "Resource name this permission applies to"
++        },
++        "verbs": {
++          "type": "array",
++          "items": {
++            "type": "string"
++          },
++          "title": "List of allowed verbs/actions for this resource"
++        }
++      },
++      "title": "Permission definition for custom roles"
++    },
+     "apiTenantAdminCreateConfig": {
+       "type": "object",
+       "properties": {
+@@ -1785,6 +3301,16 @@
+       },
+       "title": "tenant list response"
+     },
++    "apiUpdateCustomRoleResp": {
++      "type": "object",
++      "properties": {
++        "message": {
++          "type": "string",
++          "title": "Confirmation message"
++        }
++      },
++      "title": "Update custom role response"
++    },
+     "apiUserCreateReq": {
+       "type": "object",
+       "properties": {

@@ -26,4 +26,7 @@ const (
 
 	// Org Unit User collection name
 	OrgUnitUserCollectionName = "org-unit-users"
+
+	// Org Unit Custom Role collection name
+	OrgUnitCustomRoleCollectionName = "org-unit-custom-roles"
 )

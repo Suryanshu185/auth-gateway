@@ -23,6 +23,10 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	OrgUnitRole_ListOrgUnitRoles_FullMethodName = "/api.OrgUnitRole/ListOrgUnitRoles"
+	OrgUnitRole_CreateCustomRole_FullMethodName = "/api.OrgUnitRole/CreateCustomRole"
+	OrgUnitRole_UpdateCustomRole_FullMethodName = "/api.OrgUnitRole/UpdateCustomRole"
+	OrgUnitRole_GetCustomRole_FullMethodName    = "/api.OrgUnitRole/GetCustomRole"
+	OrgUnitRole_DeleteCustomRole_FullMethodName = "/api.OrgUnitRole/DeleteCustomRole"
 )
 
 // OrgUnitRoleClient is the client API for OrgUnitRole service.
@@ -31,8 +35,17 @@ const (
 //
 // Service provided to manage org unit roles
 type OrgUnitRoleClient interface {
-	// Get List of available org unit roles, for specifc orgranisation
+	// Get List of available org unit roles (both built-in and custom), for specific organisation
 	ListOrgUnitRoles(ctx context.Context, in *OrgUnitRolesListReq, opts ...grpc.CallOption) (*OrgUnitRolesListResp, error)
+	// Create a new custom role for the organization unit
+	CreateCustomRole(ctx context.Context, in *CreateCustomRoleReq, opts ...grpc.CallOption) (*CreateCustomRoleResp, error)
+	// Update an existing custom role for the organization unit
+	UpdateCustomRole(ctx context.Context, in *UpdateCustomRoleReq, opts ...grpc.CallOption) (*UpdateCustomRoleResp, error)
+	// Get details of a specific custom role
+	GetCustomRole(ctx context.Context, in *GetCustomRoleReq, opts ...grpc.CallOption) (*GetCustomRoleResp, error)
+	// Delete a custom role from the organization unit
+	// Delete (soft delete) a custom role from the organization unit
+	DeleteCustomRole(ctx context.Context, in *DeleteCustomRoleReq, opts ...grpc.CallOption) (*DeleteCustomRoleResp, error)
 }
 
 type orgUnitRoleClient struct {
@@ -53,14 +66,63 @@ func (c *orgUnitRoleClient) ListOrgUnitRoles(ctx context.Context, in *OrgUnitRol
 	return out, nil
 }
 
+func (c *orgUnitRoleClient) CreateCustomRole(ctx context.Context, in *CreateCustomRoleReq, opts ...grpc.CallOption) (*CreateCustomRoleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateCustomRoleResp)
+	err := c.cc.Invoke(ctx, OrgUnitRole_CreateCustomRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orgUnitRoleClient) UpdateCustomRole(ctx context.Context, in *UpdateCustomRoleReq, opts ...grpc.CallOption) (*UpdateCustomRoleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateCustomRoleResp)
+	err := c.cc.Invoke(ctx, OrgUnitRole_UpdateCustomRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orgUnitRoleClient) GetCustomRole(ctx context.Context, in *GetCustomRoleReq, opts ...grpc.CallOption) (*GetCustomRoleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCustomRoleResp)
+	err := c.cc.Invoke(ctx, OrgUnitRole_GetCustomRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orgUnitRoleClient) DeleteCustomRole(ctx context.Context, in *DeleteCustomRoleReq, opts ...grpc.CallOption) (*DeleteCustomRoleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteCustomRoleResp)
+	err := c.cc.Invoke(ctx, OrgUnitRole_DeleteCustomRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrgUnitRoleServer is the server API for OrgUnitRole service.
 // All implementations must embed UnimplementedOrgUnitRoleServer
 // for forward compatibility.
 //
 // Service provided to manage org unit roles
 type OrgUnitRoleServer interface {
-	// Get List of available org unit roles, for specifc orgranisation
+	// Get List of available org unit roles (both built-in and custom), for specific organisation
 	ListOrgUnitRoles(context.Context, *OrgUnitRolesListReq) (*OrgUnitRolesListResp, error)
+	// Create a new custom role for the organization unit
+	CreateCustomRole(context.Context, *CreateCustomRoleReq) (*CreateCustomRoleResp, error)
+	// Update an existing custom role for the organization unit
+	UpdateCustomRole(context.Context, *UpdateCustomRoleReq) (*UpdateCustomRoleResp, error)
+	// Get details of a specific custom role
+	GetCustomRole(context.Context, *GetCustomRoleReq) (*GetCustomRoleResp, error)
+	// Delete a custom role from the organization unit
+	// Delete (soft delete) a custom role from the organization unit
+	DeleteCustomRole(context.Context, *DeleteCustomRoleReq) (*DeleteCustomRoleResp, error)
 	mustEmbedUnimplementedOrgUnitRoleServer()
 }
 
@@ -73,6 +135,18 @@ type UnimplementedOrgUnitRoleServer struct{}
 
 func (UnimplementedOrgUnitRoleServer) ListOrgUnitRoles(context.Context, *OrgUnitRolesListReq) (*OrgUnitRolesListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListOrgUnitRoles not implemented")
+}
+func (UnimplementedOrgUnitRoleServer) CreateCustomRole(context.Context, *CreateCustomRoleReq) (*CreateCustomRoleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCustomRole not implemented")
+}
+func (UnimplementedOrgUnitRoleServer) UpdateCustomRole(context.Context, *UpdateCustomRoleReq) (*UpdateCustomRoleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCustomRole not implemented")
+}
+func (UnimplementedOrgUnitRoleServer) GetCustomRole(context.Context, *GetCustomRoleReq) (*GetCustomRoleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCustomRole not implemented")
+}
+func (UnimplementedOrgUnitRoleServer) DeleteCustomRole(context.Context, *DeleteCustomRoleReq) (*DeleteCustomRoleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCustomRole not implemented")
 }
 func (UnimplementedOrgUnitRoleServer) mustEmbedUnimplementedOrgUnitRoleServer() {}
 func (UnimplementedOrgUnitRoleServer) testEmbeddedByValue()                     {}
@@ -113,6 +187,78 @@ func _OrgUnitRole_ListOrgUnitRoles_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrgUnitRole_CreateCustomRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCustomRoleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitRoleServer).CreateCustomRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnitRole_CreateCustomRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitRoleServer).CreateCustomRole(ctx, req.(*CreateCustomRoleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrgUnitRole_UpdateCustomRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCustomRoleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitRoleServer).UpdateCustomRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnitRole_UpdateCustomRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitRoleServer).UpdateCustomRole(ctx, req.(*UpdateCustomRoleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrgUnitRole_GetCustomRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCustomRoleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitRoleServer).GetCustomRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnitRole_GetCustomRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitRoleServer).GetCustomRole(ctx, req.(*GetCustomRoleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrgUnitRole_DeleteCustomRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCustomRoleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitRoleServer).DeleteCustomRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnitRole_DeleteCustomRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitRoleServer).DeleteCustomRole(ctx, req.(*DeleteCustomRoleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrgUnitRole_ServiceDesc is the grpc.ServiceDesc for OrgUnitRole service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -123,6 +269,22 @@ var OrgUnitRole_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListOrgUnitRoles",
 			Handler:    _OrgUnitRole_ListOrgUnitRoles_Handler,
+		},
+		{
+			MethodName: "CreateCustomRole",
+			Handler:    _OrgUnitRole_CreateCustomRole_Handler,
+		},
+		{
+			MethodName: "UpdateCustomRole",
+			Handler:    _OrgUnitRole_UpdateCustomRole_Handler,
+		},
+		{
+			MethodName: "GetCustomRole",
+			Handler:    _OrgUnitRole_GetCustomRole_Handler,
+		},
+		{
+			MethodName: "DeleteCustomRole",
+			Handler:    _OrgUnitRole_DeleteCustomRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
