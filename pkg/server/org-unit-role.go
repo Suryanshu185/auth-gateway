@@ -86,6 +86,11 @@ func (s *OrgUnitRoleServer) CreateCustomRole(ctx context.Context, req *api.Creat
 	err := s.customRoleTable.Insert(ctx, customRole.Key, customRole)
 	if err != nil {
 		if errors.IsAlreadyExists(err) {
+			// Check if there's a soft-deleted role with the same name
+			deletedRole, checkErr := s.customRoleTable.FindInactiveByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, req.Name)
+			if checkErr == nil && deletedRole != nil {
+				return nil, status.Errorf(codes.AlreadyExists, "Custom role '%s' was previously deleted. Please restore it instead of creating a new one", req.Name)
+			}
 			return nil, status.Errorf(codes.AlreadyExists, "Custom role '%s' already exists in organization unit", req.Name)
 		}
 		log.Printf("failed to create custom role: %s", err)
@@ -208,6 +213,35 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 
 	return &api.DeleteCustomRoleResp{
 		Message: "Custom role deleted successfully", // Success confirmation message
+	}, nil
+}
+
+// RestoreCustomRole restores a previously soft-deleted custom role
+func (s *OrgUnitRoleServer) RestoreCustomRole(ctx context.Context, req *api.RestoreCustomRoleReq) (*api.RestoreCustomRoleResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	// Create the key for finding the role to restore
+	key := &table.OrgUnitCustomRoleKey{
+		Tenant:    authInfo.Realm, // Current user's tenant
+		OrgUnitId: req.Ou,         // Organization unit ID from request
+		Name:      req.RoleName,   // Role name to restore
+	}
+
+	// Perform restore operation (mark as active)
+	err := s.customRoleTable.RestoreRole(ctx, key, authInfo.UserName)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "Deleted custom role '%s' not found in organization unit", req.RoleName)
+		}
+		log.Printf("failed to restore custom role: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	return &api.RestoreCustomRoleResp{
+		Message: "Custom role restored successfully", // Success confirmation message
 	}, nil
 }
 

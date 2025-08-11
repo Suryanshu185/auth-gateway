@@ -105,13 +105,24 @@ func (t *OrgUnitCustomRoleTable) GetByTenant(ctx context.Context, tenant string,
 
 // FindByNameAndOrgUnit finds a specific custom role by name within an org unit
 func (t *OrgUnitCustomRoleTable) FindByNameAndOrgUnit(ctx context.Context, tenant, orgUnitId, roleName string) (*OrgUnitCustomRole, error) {
-	key := &OrgUnitCustomRoleKey{
-		Tenant:    tenant,
-		OrgUnitId: orgUnitId,
-		Name:      roleName,
+	filter := bson.M{
+		"key.tenant":    tenant,               // Filter by tenant
+		"key.orgUnitId": orgUnitId,            // Filter by organization unit
+		"key.name":      roleName,             // Filter by role name
+		"active":        bson.M{"$ne": false}, // Include only active roles (true or nil)
 	}
 
-	return t.Find(ctx, key)
+	// Use FindMany with limit 1 to get a single active role
+	results, err := t.FindMany(ctx, filter, 0, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "custom role not found")
+	}
+
+	return results[0], nil
 }
 
 // SoftDelete marks a custom role as inactive instead of physically deleting it
@@ -123,6 +134,39 @@ func (t *OrgUnitCustomRoleTable) SoftDelete(ctx context.Context, key *OrgUnitCus
 	}
 
 	return t.Update(ctx, key, update)
+}
+
+// RestoreRole reactivates a soft-deleted custom role
+func (t *OrgUnitCustomRoleTable) RestoreRole(ctx context.Context, key *OrgUnitCustomRoleKey, restoredBy string) error {
+	update := &OrgUnitCustomRole{
+		Active:    boolPtr(true),    // Mark as active again
+		UpdatedBy: restoredBy,       // Track who performed the restoration
+		Updated:   getCurrentTime(), // Update timestamp
+	}
+
+	return t.Update(ctx, key, update)
+}
+
+// FindInactiveByNameAndOrgUnit finds a soft-deleted custom role by name within an org unit
+func (t *OrgUnitCustomRoleTable) FindInactiveByNameAndOrgUnit(ctx context.Context, tenant, orgUnitId, roleName string) (*OrgUnitCustomRole, error) {
+	filter := bson.M{
+		"key.tenant":    tenant,    // Filter by tenant
+		"key.orgUnitId": orgUnitId, // Filter by organization unit
+		"key.name":      roleName,  // Filter by role name
+		"active":        false,     // Include only inactive (soft-deleted) roles
+	}
+
+	// Use FindMany with limit 1 to get a single inactive role
+	results, err := t.FindMany(ctx, filter, 0, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(results) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "soft-deleted custom role not found")
+	}
+
+	return results[0], nil
 }
 
 // GetOrgUnitCustomRoleTable returns the global custom role table instance

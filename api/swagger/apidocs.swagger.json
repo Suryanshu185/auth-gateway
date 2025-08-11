@@ -342,7 +342,7 @@
         ]
       },
       "delete": {
-        "summary": "Delete a custom role from the organization unit",
+        "summary": "Delete a custom role from the organization unit\nDelete (soft delete) a custom role from the organization unit",
         "operationId": "OrgUnitRole_DeleteCustomRole",
         "responses": {
           "200": {
@@ -416,6 +416,53 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/OrgUnitRoleUpdateCustomRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnitRole"
+        ]
+      }
+    },
+    "/api/auth/v1/ou/{ou}/custom-roles/{roleName}/restore": {
+      "post": {
+        "summary": "Restore a soft-deleted custom role in the organization unit",
+        "operationId": "OrgUnitRole_RestoreCustomRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRestoreCustomRoleResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "Organization unit ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roleName",
+            "description": "Name of the custom role to restore",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrgUnitRoleRestoreCustomRoleBody"
             }
           }
         ],
@@ -2125,6 +2172,10 @@
       },
       "title": "Create custom role request"
     },
+    "OrgUnitRoleRestoreCustomRoleBody": {
+      "type": "object",
+      "title": "Restore custom role request"
+    },
     "OrgUnitRoleUpdateCustomRoleBody": {
       "type": "object",
       "properties": {
@@ -2909,6 +2960,16 @@
         }
       },
       "title": "resource get response"
+    },
+    "apiRestoreCustomRoleResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Confirmation message"
+        }
+      },
+      "title": "Restore custom role response"
     },
     "apiRolePermission": {
       "type": "object",

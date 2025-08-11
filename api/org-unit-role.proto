@@ -63,6 +63,7 @@ service OrgUnitRole {
   }
 
   // Delete a custom role from the organization unit
+  // Delete (soft delete) a custom role from the organization unit
   rpc DeleteCustomRole(DeleteCustomRoleReq) returns (DeleteCustomRoleResp) {
     option (google.api.http) = {
       delete: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
@@ -71,6 +72,19 @@ service OrgUnitRole {
       resource: "org-unit-custom-role"
       scope: "ou"
       verb: "delete"
+    };
+  }
+
+  // Restore a soft-deleted custom role in the organization unit
+  rpc RestoreCustomRole(RestoreCustomRoleReq) returns (RestoreCustomRoleResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}/restore"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit-custom-role"
+      scope: "ou"
+      verb: "update"
     };
   }
 
@@ -215,6 +229,21 @@ message DeleteCustomRoleReq {
 
 // Delete custom role response
 message DeleteCustomRoleResp {
+  // Confirmation message
+  string message = 1;
+}
+
+// Restore custom role request
+message RestoreCustomRoleReq {
+  // Organization unit ID
+  string ou = 1;
+
+  // Name of the custom role to restore
+  string roleName = 2;
+}
+
+// Restore custom role response
+message RestoreCustomRoleResp {
   // Confirmation message
   string message = 1;
 }
