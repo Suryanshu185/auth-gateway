@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -22,7 +23,8 @@ import (
 
 type OrgUnitUserServer struct {
 	api.UnimplementedOrgUnitUserServer
-	tbl *table.OrgUnitUserTable
+	tbl             *table.OrgUnitUserTable       // Table for org unit user data
+	ouCustomRoleTbl *table.OrgUnitCustomRoleTable // Table for custom role validation
 }
 
 func (s *OrgUnitUserServer) ListOrgUnitUsers(ctx context.Context, req *api.OrgUnitUsersListReq) (*api.OrgUnitUsersListResp, error) {
@@ -99,9 +101,9 @@ func (s *OrgUnitUserServer) UpdateOrgUnitUser(ctx context.Context, req *api.OrgU
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
-	// validate role, currently only admin, default and auditor roles are allowed
-	if req.Role != "admin" && req.Role != "default" && req.Role != "auditor" {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
+	// validate role - check if it's a built-in role or custom role
+	if err := s.validateRole(ctx, req.Role, req.Ou, authInfo.Realm); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s - %v", req.Role, err)
 	}
 
 	update := &table.OrgUnitUser{
@@ -136,13 +138,60 @@ func (s *OrgUnitUserServer) DeleteOrgUnitUser(ctx context.Context, req *api.OrgU
 		OrgUnitId: req.Ou,
 	}
 
-	err := s.tbl.DeleteKey(ctx, key)
+	// Get the user data before deletion to check their role
+	filter := bson.M{
+		"key.tenant":    authInfo.Realm,
+		"key.username":  req.User,
+		"key.orgUnitId": req.Ou,
+	}
+	users, err := s.tbl.FindMany(ctx, filter, 0, 1)
+	if err != nil {
+		log.Printf("failed to get org unit user before deletion, got error: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	if len(users) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Org Unit User %s, not found", req.User)
+	}
+
+	userData := users[0]
+
+	// Store the role name for potential cleanup
+	roleName := userData.Role
+
+	// Delete the user
+	err = s.tbl.DeleteKey(ctx, key)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, status.Errorf(codes.NotFound, "Org Unit User %s, not found", req.User)
 		}
 		log.Printf("failed to delete org unit user, got error: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Check if the role was a custom role and potentially clean up soft-deleted role
+	if roleName != "admin" && roleName != "default" && roleName != "auditor" {
+		// This was a custom role - check if it's soft-deleted and has no remaining bindings
+		roleKey := &table.OrgUnitCustomRoleKey{
+			Tenant:    authInfo.Realm,
+			OrgUnitId: req.Ou,
+			Name:      roleName,
+		}
+
+		// Try to find the role (including soft deleted ones)
+		existingRole, err := s.ouCustomRoleTbl.FindAnyByNameAndOrgUnit(ctx, authInfo.Realm, req.Ou, roleName)
+		if err == nil && existingRole.Active != nil && !*existingRole.Active {
+			// Role exists and is soft-deleted - check if it has remaining bindings
+			hasBindings, err := s.ouCustomRoleTbl.HasBindings(ctx, authInfo.Realm, req.Ou, roleName)
+			if err == nil && !hasBindings {
+				// No more bindings - permanently delete the soft-deleted role
+				err = s.ouCustomRoleTbl.PermanentDelete(ctx, roleKey)
+				if err != nil {
+					// Log the error but don't fail the user deletion
+					log.Printf("failed to cleanup orphaned soft-deleted role %s: %s", roleName, err)
+				}
+			}
+		}
 	}
 
 	return &api.OrgUnitUserDeleteResp{}, nil
@@ -153,8 +202,16 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 	if err != nil {
 		log.Panicf("failed to get org unit user table: %s", err)
 	}
+
+	// Get custom role table for role validation
+	ouCustomRoleTbl, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("failed to get org unit custom role table: %s", err)
+	}
+
 	srv := &OrgUnitUserServer{
-		tbl: tbl,
+		tbl:             tbl,             // Initialize org unit user table
+		ouCustomRoleTbl: ouCustomRoleTbl, // Initialize custom role table for validation
 	}
 	api.RegisterOrgUnitUserServer(ctx.Server, srv)
 	err = api.RegisterOrgUnitUserHandler(context.Background(), ctx.Mux, ctx.Conn)
@@ -182,4 +239,23 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 		}
 	}
 	return srv
+}
+
+// ValidateRole checks if the provided role is valid (either built-in or custom role)
+func (s *OrgUnitUserServer) validateRole(ctx context.Context, roleName, orgUnitId, tenant string) error {
+	// Check if it's a built-in system role
+	if roleName == "admin" || roleName == "auditor" {
+		return nil // Built-in roles are always valid
+	}
+
+	// Check if it's a valid custom role
+	_, err := s.ouCustomRoleTbl.FindByNameAndOrgUnit(ctx, tenant, orgUnitId, roleName)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return errors.New("role not found") // Custom role doesn't exist
+		}
+		return err // Database error
+	}
+
+	return nil // Custom role exists and is valid
 }
