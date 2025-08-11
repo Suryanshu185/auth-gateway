@@ -23,6 +23,68 @@ service OrgUnitRole {
       verb: "list"
     };
   }
+
+  // Create a new custom role for the organization unit
+  rpc CreateCustomRole(CreateCustomRoleReq) returns (CreateCustomRoleResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/ou/{ou}/custom-roles"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit-custom-role"
+      scope: "ou"
+      verb: "create"
+    };
+  }
+
+  // Update an existing custom role for the organization unit
+  rpc UpdateCustomRole(UpdateCustomRoleReq) returns (UpdateCustomRoleResp) {
+    option (google.api.http) = {
+      put: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit-custom-role"
+      scope: "ou"
+      verb: "update"
+    };
+  }
+
+  // Get details of a specific custom role
+  rpc GetCustomRole(GetCustomRoleReq) returns (GetCustomRoleResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
+    };
+    option (api.role) = {
+      resource: "org-unit-custom-role"
+      scope: "ou"
+      verb: "get"
+    };
+  }
+
+  // Delete a custom role from the organization unit
+  rpc DeleteCustomRole(DeleteCustomRoleReq) returns (DeleteCustomRoleResp) {
+    option (google.api.http) = {
+      delete: "/api/auth/v1/ou/{ou}/custom-roles/{roleName}"
+    };
+    option (api.role) = {
+      resource: "org-unit-custom-role"
+      scope: "ou"
+      verb: "delete"
+    };
+  }
+
+  // List all custom roles for the organization unit
+  rpc ListCustomRoles(ListCustomRolesReq) returns (ListCustomRolesResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/ou/{ou}/custom-roles"
+    };
+    option (api.role) = {
+      resource: "org-unit-custom-role"
+      scope: "ou"
+      verb: "list"
+    };
+  }
 }
 
 // org unit roles list request
@@ -47,4 +109,154 @@ message OrgUnitRolesListResp {
 
   // list of roles available as part of the response
   repeated OrgUnitRolesListEntry items = 2;
+}
+
+// Permission definition for custom roles
+message RolePermission {
+  // Resource name this permission applies to
+  string resource = 1;
+
+  // List of allowed verbs/actions for this resource
+  repeated string verbs = 2;
+}
+
+// Create custom role request
+message CreateCustomRoleReq {
+  // Organization unit ID
+  string ou = 1;
+
+  // Name of the custom role (must be unique within the org unit)
+  string name = 2;
+
+  // Display name for the custom role
+  string displayName = 3;
+
+  // Description explaining the purpose of this custom role
+  string description = 4;
+
+  // List of permissions granted by this custom role
+  repeated RolePermission permissions = 5;
+}
+
+// Create custom role response
+message CreateCustomRoleResp {
+  // Confirmation message
+  string message = 1;
+}
+
+// Update custom role request
+message UpdateCustomRoleReq {
+  // Organization unit ID
+  string ou = 1;
+
+  // Name of the custom role to update
+  string roleName = 2;
+
+  // Updated display name for the custom role
+  string displayName = 3;
+
+  // Updated description explaining the purpose of this custom role
+  string description = 4;
+
+  // Updated list of permissions granted by this custom role
+  repeated RolePermission permissions = 5;
+}
+
+// Update custom role response
+message UpdateCustomRoleResp {
+  // Confirmation message
+  string message = 1;
+}
+
+// Get custom role request
+message GetCustomRoleReq {
+  // Organization unit ID
+  string ou = 1;
+
+  // Name of the custom role to retrieve
+  string roleName = 2;
+}
+
+// Get custom role response
+message GetCustomRoleResp {
+  // Name of the custom role
+  string name = 1;
+
+  // Display name for the custom role
+  string displayName = 2;
+
+  // Description explaining the purpose of this custom role
+  string description = 3;
+
+  // List of permissions granted by this custom role
+  repeated RolePermission permissions = 4;
+
+  // Timestamp when the role was created
+  int64 created = 5;
+
+  // User who created this custom role
+  string createdBy = 6;
+
+  // Timestamp when the role was last updated
+  int64 updated = 7;
+
+  // User who last updated this custom role
+  string updatedBy = 8;
+}
+
+// Delete custom role request
+message DeleteCustomRoleReq {
+  // Organization unit ID
+  string ou = 1;
+
+  // Name of the custom role to delete
+  string roleName = 2;
+}
+
+// Delete custom role response
+message DeleteCustomRoleResp {
+  // Confirmation message
+  string message = 1;
+}
+
+// List custom roles request
+message ListCustomRolesReq {
+  // Organization unit ID
+  string ou = 1;
+
+  // Pagination offset
+  int32 offset = 2;
+
+  // Pagination limit
+  int32 limit = 3;
+}
+
+// Custom role list entry
+message CustomRoleListEntry {
+  // Name of the custom role
+  string name = 1;
+
+  // Display name for the custom role
+  string displayName = 2;
+
+  // Description explaining the purpose of this custom role
+  string description = 3;
+
+  // Number of permissions associated with this role
+  int32 permissionCount = 4;
+
+  // Timestamp when the role was created
+  int64 created = 5;
+
+  // User who created this custom role
+  string createdBy = 6;
+}
+
+// List custom roles response
+message ListCustomRolesResp {
+  // Total count of custom roles for pagination
+  int32 count = 1;
+
+  // List of custom roles
+  repeated CustomRoleListEntry items = 2;
 }

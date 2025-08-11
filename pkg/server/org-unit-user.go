@@ -22,7 +22,8 @@ import (
 
 type OrgUnitUserServer struct {
 	api.UnimplementedOrgUnitUserServer
-	tbl *table.OrgUnitUserTable
+	tbl             *table.OrgUnitUserTable       // Table for org unit user data
+	ouCustomRoleTbl *table.OrgUnitCustomRoleTable // Table for custom role validation
 }
 
 func (s *OrgUnitUserServer) ListOrgUnitUsers(ctx context.Context, req *api.OrgUnitUsersListReq) (*api.OrgUnitUsersListResp, error) {
@@ -99,9 +100,9 @@ func (s *OrgUnitUserServer) UpdateOrgUnitUser(ctx context.Context, req *api.OrgU
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
-	// validate role, currently only admin, default and auditor roles are allowed
-	if req.Role != "admin" && req.Role != "default" && req.Role != "auditor" {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
+	// validate role - check if it's a built-in role or custom role
+	if err := s.validateRole(ctx, req.Role, req.Ou, authInfo.Realm); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s - %v", req.Role, err)
 	}
 
 	update := &table.OrgUnitUser{
@@ -153,8 +154,16 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 	if err != nil {
 		log.Panicf("failed to get org unit user table: %s", err)
 	}
+
+	// Get custom role table for role validation
+	ouCustomRoleTbl, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("failed to get org unit custom role table: %s", err)
+	}
+
 	srv := &OrgUnitUserServer{
-		tbl: tbl,
+		tbl:             tbl,             // Initialize org unit user table
+		ouCustomRoleTbl: ouCustomRoleTbl, // Initialize custom role table for validation
 	}
 	api.RegisterOrgUnitUserServer(ctx.Server, srv)
 	err = api.RegisterOrgUnitUserHandler(context.Background(), ctx.Mux, ctx.Conn)
@@ -182,4 +191,23 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 		}
 	}
 	return srv
+}
+
+// validateRole checks if the provided role is valid (either built-in or custom role)
+func (s *OrgUnitUserServer) validateRole(ctx context.Context, roleName, orgUnitId, tenant string) error {
+	// Check if it's a built-in system role
+	if roleName == "admin" || roleName == "default" || roleName == "auditor" {
+		return nil // Built-in roles are always valid
+	}
+
+	// Check if it's a valid custom role
+	_, err := s.ouCustomRoleTbl.FindByNameAndOrgUnit(ctx, tenant, orgUnitId, roleName)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return errors.New("role not found") // Custom role doesn't exist
+		}
+		return err // Database error
+	}
+
+	return nil // Custom role exists and is valid
 }

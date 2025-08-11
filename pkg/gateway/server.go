@@ -35,14 +35,15 @@ const (
 
 type gateway struct {
 	http.Handler
-	validator hash.Validator
-	apiKeys   *table.ApiKeyTable
-	userTbl   *table.UserTable
-	routes    *route.RouteTable
-	ouTbl     *table.OrgUnitTable
-	ouUserTbl *table.OrgUnitUserTable
-	proxyV1   *httputil.ReverseProxy
-	proxyV2   *httputil.ReverseProxy
+	validator       hash.Validator
+	apiKeys         *table.ApiKeyTable
+	userTbl         *table.UserTable
+	routes          *route.RouteTable
+	ouTbl           *table.OrgUnitTable
+	ouUserTbl       *table.OrgUnitUserTable
+	ouCustomRoleTbl *table.OrgUnitCustomRoleTable // Table for managing custom roles
+	proxyV1         *httputil.ReverseProxy
+	proxyV2         *httputil.ReverseProxy
 }
 
 type gatewayReconciler struct {
@@ -210,6 +211,8 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 		}
 		return false
 	}
+
+	// Check built-in system roles first
 	switch ouUser.Role {
 	case "admin":
 		// wildcard access to the org unit
@@ -220,8 +223,111 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 			return true
 		}
 		return false
+	case "default":
+		// default role has basic access - implement based on requirements
+		return true
 	}
+
+	// Check if it's a custom role
+	customRole, err := s.ouCustomRoleTbl.FindByNameAndOrgUnit(r.Context(), authInfo.Realm, ou, ouUser.Role)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			log.Printf("failed to find custom role %s for org unit %s: %s", ouUser.Role, ou, err)
+		}
+		// If custom role not found, deny access
+		return false
+	}
+
+	// Check if the custom role allows the requested action
+	return s.checkCustomRolePermissions(customRole, r)
+}
+
+// checkCustomRolePermissions validates if a custom role permits the requested HTTP action
+func (s *gateway) checkCustomRolePermissions(customRole *table.OrgUnitCustomRole, r *http.Request) bool {
+	// Extract the resource and verb from the current route
+	routeInfo, err := s.extractRouteInfo(r)
+	if err != nil {
+		log.Printf("failed to extract route info for permission check: %s", err)
+		return false // Deny access if we can't determine the resource
+	}
+
+	// Check each permission in the custom role
+	for _, permission := range customRole.Permissions {
+		if permission.Resource == routeInfo.Resource {
+			// Check if the required verb is allowed
+			for _, allowedVerb := range permission.Verbs {
+				if allowedVerb == routeInfo.Verb {
+					return true // Permission granted
+				}
+			}
+		}
+	}
+
+	// If no matching permission found, deny access
 	return false
+}
+
+// RouteInfo holds information about the current request route
+type RouteInfo struct {
+	Resource string // The resource being accessed
+	Verb     string // The action being performed
+}
+
+// extractRouteInfo extracts resource and verb information from the current request
+func (s *gateway) extractRouteInfo(r *http.Request) (*RouteInfo, error) {
+	// Find the route configuration for this request
+	routes, err := s.routes.FindMany(r.Context(), nil, 0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert HTTP method to route.MethodType for matching
+	var targetMethod route.MethodType
+	switch r.Method {
+	case "GET":
+		targetMethod = route.GET
+	case "POST":
+		targetMethod = route.POST
+	case "PUT":
+		targetMethod = route.PUT
+	case "DELETE":
+		targetMethod = route.DELETE
+	case "PATCH":
+		targetMethod = route.PATCH
+	case "HEAD":
+		targetMethod = route.HEAD
+	case "OPTIONS":
+		targetMethod = route.OPTIONS
+	default:
+		return nil, errors.New("unsupported HTTP method") // Unsupported method
+	}
+
+	// Match the current request to a route
+	for _, route := range routes {
+		if route.Key.Method == targetMethod &&
+			matchesPath(route.Key.Url, r.URL.Path) {
+			return &RouteInfo{
+				Resource: route.Resource, // Resource name from route config
+				Verb:     route.Verb,     // Verb/action from route config
+			}, nil
+		}
+	}
+
+	return nil, errors.New("route not found") // Route not found in configuration
+}
+
+// matchesPath checks if a route pattern matches the request path
+func matchesPath(pattern, path string) bool {
+	// Simple path matching - could be enhanced with parameter matching
+	// For now, just check if the paths are equal (excluding parameters)
+	return pattern == path || containsPathPattern(pattern, path)
+}
+
+// containsPathPattern performs basic pattern matching for routes with parameters
+func containsPathPattern(pattern, path string) bool {
+	// This is a simplified implementation
+	// A more robust implementation would handle {param} patterns properly
+	return false // Placeholder - should implement proper pattern matching
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -172,6 +172,792 @@ func (x *OrgUnitRolesListResp) GetItems() []*OrgUnitRolesListEntry {
 	return nil
 }
 
+// Permission definition for custom roles
+type RolePermission struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Resource name this permission applies to
+	Resource string `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	// List of allowed verbs/actions for this resource
+	Verbs         []string `protobuf:"bytes,2,rep,name=verbs,proto3" json:"verbs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RolePermission) Reset() {
+	*x = RolePermission{}
+	mi := &file_org_unit_role_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RolePermission) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RolePermission) ProtoMessage() {}
+
+func (x *RolePermission) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RolePermission.ProtoReflect.Descriptor instead.
+func (*RolePermission) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RolePermission) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *RolePermission) GetVerbs() []string {
+	if x != nil {
+		return x.Verbs
+	}
+	return nil
+}
+
+// Create custom role request
+type CreateCustomRoleReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Organization unit ID
+	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+	// Name of the custom role (must be unique within the org unit)
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Display name for the custom role
+	DisplayName string `protobuf:"bytes,3,opt,name=displayName,proto3" json:"displayName,omitempty"`
+	// Description explaining the purpose of this custom role
+	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// List of permissions granted by this custom role
+	Permissions   []*RolePermission `protobuf:"bytes,5,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateCustomRoleReq) Reset() {
+	*x = CreateCustomRoleReq{}
+	mi := &file_org_unit_role_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCustomRoleReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCustomRoleReq) ProtoMessage() {}
+
+func (x *CreateCustomRoleReq) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCustomRoleReq.ProtoReflect.Descriptor instead.
+func (*CreateCustomRoleReq) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateCustomRoleReq) GetOu() string {
+	if x != nil {
+		return x.Ou
+	}
+	return ""
+}
+
+func (x *CreateCustomRoleReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateCustomRoleReq) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *CreateCustomRoleReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateCustomRoleReq) GetPermissions() []*RolePermission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+// Create custom role response
+type CreateCustomRoleResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Confirmation message
+	Message       string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateCustomRoleResp) Reset() {
+	*x = CreateCustomRoleResp{}
+	mi := &file_org_unit_role_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCustomRoleResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCustomRoleResp) ProtoMessage() {}
+
+func (x *CreateCustomRoleResp) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCustomRoleResp.ProtoReflect.Descriptor instead.
+func (*CreateCustomRoleResp) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateCustomRoleResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// Update custom role request
+type UpdateCustomRoleReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Organization unit ID
+	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+	// Name of the custom role to update
+	RoleName string `protobuf:"bytes,2,opt,name=roleName,proto3" json:"roleName,omitempty"`
+	// Updated display name for the custom role
+	DisplayName string `protobuf:"bytes,3,opt,name=displayName,proto3" json:"displayName,omitempty"`
+	// Updated description explaining the purpose of this custom role
+	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// Updated list of permissions granted by this custom role
+	Permissions   []*RolePermission `protobuf:"bytes,5,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateCustomRoleReq) Reset() {
+	*x = UpdateCustomRoleReq{}
+	mi := &file_org_unit_role_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCustomRoleReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCustomRoleReq) ProtoMessage() {}
+
+func (x *UpdateCustomRoleReq) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCustomRoleReq.ProtoReflect.Descriptor instead.
+func (*UpdateCustomRoleReq) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateCustomRoleReq) GetOu() string {
+	if x != nil {
+		return x.Ou
+	}
+	return ""
+}
+
+func (x *UpdateCustomRoleReq) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *UpdateCustomRoleReq) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *UpdateCustomRoleReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdateCustomRoleReq) GetPermissions() []*RolePermission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+// Update custom role response
+type UpdateCustomRoleResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Confirmation message
+	Message       string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateCustomRoleResp) Reset() {
+	*x = UpdateCustomRoleResp{}
+	mi := &file_org_unit_role_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCustomRoleResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCustomRoleResp) ProtoMessage() {}
+
+func (x *UpdateCustomRoleResp) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCustomRoleResp.ProtoReflect.Descriptor instead.
+func (*UpdateCustomRoleResp) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateCustomRoleResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// Get custom role request
+type GetCustomRoleReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Organization unit ID
+	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+	// Name of the custom role to retrieve
+	RoleName      string `protobuf:"bytes,2,opt,name=roleName,proto3" json:"roleName,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCustomRoleReq) Reset() {
+	*x = GetCustomRoleReq{}
+	mi := &file_org_unit_role_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCustomRoleReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCustomRoleReq) ProtoMessage() {}
+
+func (x *GetCustomRoleReq) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCustomRoleReq.ProtoReflect.Descriptor instead.
+func (*GetCustomRoleReq) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetCustomRoleReq) GetOu() string {
+	if x != nil {
+		return x.Ou
+	}
+	return ""
+}
+
+func (x *GetCustomRoleReq) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+// Get custom role response
+type GetCustomRoleResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of the custom role
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Display name for the custom role
+	DisplayName string `protobuf:"bytes,2,opt,name=displayName,proto3" json:"displayName,omitempty"`
+	// Description explaining the purpose of this custom role
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// List of permissions granted by this custom role
+	Permissions []*RolePermission `protobuf:"bytes,4,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	// Timestamp when the role was created
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	// User who created this custom role
+	CreatedBy string `protobuf:"bytes,6,opt,name=createdBy,proto3" json:"createdBy,omitempty"`
+	// Timestamp when the role was last updated
+	Updated int64 `protobuf:"varint,7,opt,name=updated,proto3" json:"updated,omitempty"`
+	// User who last updated this custom role
+	UpdatedBy     string `protobuf:"bytes,8,opt,name=updatedBy,proto3" json:"updatedBy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCustomRoleResp) Reset() {
+	*x = GetCustomRoleResp{}
+	mi := &file_org_unit_role_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCustomRoleResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCustomRoleResp) ProtoMessage() {}
+
+func (x *GetCustomRoleResp) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCustomRoleResp.ProtoReflect.Descriptor instead.
+func (*GetCustomRoleResp) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetCustomRoleResp) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetCustomRoleResp) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *GetCustomRoleResp) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *GetCustomRoleResp) GetPermissions() []*RolePermission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+func (x *GetCustomRoleResp) GetCreated() int64 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+func (x *GetCustomRoleResp) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *GetCustomRoleResp) GetUpdated() int64 {
+	if x != nil {
+		return x.Updated
+	}
+	return 0
+}
+
+func (x *GetCustomRoleResp) GetUpdatedBy() string {
+	if x != nil {
+		return x.UpdatedBy
+	}
+	return ""
+}
+
+// Delete custom role request
+type DeleteCustomRoleReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Organization unit ID
+	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+	// Name of the custom role to delete
+	RoleName      string `protobuf:"bytes,2,opt,name=roleName,proto3" json:"roleName,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCustomRoleReq) Reset() {
+	*x = DeleteCustomRoleReq{}
+	mi := &file_org_unit_role_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCustomRoleReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCustomRoleReq) ProtoMessage() {}
+
+func (x *DeleteCustomRoleReq) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCustomRoleReq.ProtoReflect.Descriptor instead.
+func (*DeleteCustomRoleReq) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteCustomRoleReq) GetOu() string {
+	if x != nil {
+		return x.Ou
+	}
+	return ""
+}
+
+func (x *DeleteCustomRoleReq) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+// Delete custom role response
+type DeleteCustomRoleResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Confirmation message
+	Message       string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCustomRoleResp) Reset() {
+	*x = DeleteCustomRoleResp{}
+	mi := &file_org_unit_role_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCustomRoleResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCustomRoleResp) ProtoMessage() {}
+
+func (x *DeleteCustomRoleResp) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCustomRoleResp.ProtoReflect.Descriptor instead.
+func (*DeleteCustomRoleResp) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *DeleteCustomRoleResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// List custom roles request
+type ListCustomRolesReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Organization unit ID
+	Ou string `protobuf:"bytes,1,opt,name=ou,proto3" json:"ou,omitempty"`
+	// Pagination offset
+	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	// Pagination limit
+	Limit         int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCustomRolesReq) Reset() {
+	*x = ListCustomRolesReq{}
+	mi := &file_org_unit_role_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCustomRolesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCustomRolesReq) ProtoMessage() {}
+
+func (x *ListCustomRolesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCustomRolesReq.ProtoReflect.Descriptor instead.
+func (*ListCustomRolesReq) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListCustomRolesReq) GetOu() string {
+	if x != nil {
+		return x.Ou
+	}
+	return ""
+}
+
+func (x *ListCustomRolesReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ListCustomRolesReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// Custom role list entry
+type CustomRoleListEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of the custom role
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Display name for the custom role
+	DisplayName string `protobuf:"bytes,2,opt,name=displayName,proto3" json:"displayName,omitempty"`
+	// Description explaining the purpose of this custom role
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// Number of permissions associated with this role
+	PermissionCount int32 `protobuf:"varint,4,opt,name=permissionCount,proto3" json:"permissionCount,omitempty"`
+	// Timestamp when the role was created
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	// User who created this custom role
+	CreatedBy     string `protobuf:"bytes,6,opt,name=createdBy,proto3" json:"createdBy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CustomRoleListEntry) Reset() {
+	*x = CustomRoleListEntry{}
+	mi := &file_org_unit_role_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CustomRoleListEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CustomRoleListEntry) ProtoMessage() {}
+
+func (x *CustomRoleListEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CustomRoleListEntry.ProtoReflect.Descriptor instead.
+func (*CustomRoleListEntry) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CustomRoleListEntry) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CustomRoleListEntry) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *CustomRoleListEntry) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CustomRoleListEntry) GetPermissionCount() int32 {
+	if x != nil {
+		return x.PermissionCount
+	}
+	return 0
+}
+
+func (x *CustomRoleListEntry) GetCreated() int64 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+func (x *CustomRoleListEntry) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+// List custom roles response
+type ListCustomRolesResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Total count of custom roles for pagination
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// List of custom roles
+	Items         []*CustomRoleListEntry `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCustomRolesResp) Reset() {
+	*x = ListCustomRolesResp{}
+	mi := &file_org_unit_role_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCustomRolesResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCustomRolesResp) ProtoMessage() {}
+
+func (x *ListCustomRolesResp) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_role_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCustomRolesResp.ProtoReflect.Descriptor instead.
+func (*ListCustomRolesResp) Descriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListCustomRolesResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *ListCustomRolesResp) GetItems() []*CustomRoleListEntry {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_org_unit_role_proto protoreflect.FileDescriptor
 
 const file_org_unit_role_proto_rawDesc = "" +
@@ -183,10 +969,70 @@ const file_org_unit_role_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x02 \x01(\tR\x04desc\"H\n" +
 	"\x14OrgUnitRolesListResp\x120\n" +
-	"\x05items\x18\x02 \x03(\v2\x1a.api.OrgUnitRolesListEntryR\x05items2\x98\x01\n" +
+	"\x05items\x18\x02 \x03(\v2\x1a.api.OrgUnitRolesListEntryR\x05items\"B\n" +
+	"\x0eRolePermission\x12\x1a\n" +
+	"\bresource\x18\x01 \x01(\tR\bresource\x12\x14\n" +
+	"\x05verbs\x18\x02 \x03(\tR\x05verbs\"\xb4\x01\n" +
+	"\x13CreateCustomRoleReq\x12\x0e\n" +
+	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdisplayName\x18\x03 \x01(\tR\vdisplayName\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x125\n" +
+	"\vpermissions\x18\x05 \x03(\v2\x13.api.RolePermissionR\vpermissions\"0\n" +
+	"\x14CreateCustomRoleResp\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xbc\x01\n" +
+	"\x13UpdateCustomRoleReq\x12\x0e\n" +
+	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x1a\n" +
+	"\broleName\x18\x02 \x01(\tR\broleName\x12 \n" +
+	"\vdisplayName\x18\x03 \x01(\tR\vdisplayName\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x125\n" +
+	"\vpermissions\x18\x05 \x03(\v2\x13.api.RolePermissionR\vpermissions\"0\n" +
+	"\x14UpdateCustomRoleResp\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\">\n" +
+	"\x10GetCustomRoleReq\x12\x0e\n" +
+	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x1a\n" +
+	"\broleName\x18\x02 \x01(\tR\broleName\"\x92\x02\n" +
+	"\x11GetCustomRoleResp\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdisplayName\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x125\n" +
+	"\vpermissions\x18\x04 \x03(\v2\x13.api.RolePermissionR\vpermissions\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1c\n" +
+	"\tcreatedBy\x18\x06 \x01(\tR\tcreatedBy\x12\x18\n" +
+	"\aupdated\x18\a \x01(\x03R\aupdated\x12\x1c\n" +
+	"\tupdatedBy\x18\b \x01(\tR\tupdatedBy\"A\n" +
+	"\x13DeleteCustomRoleReq\x12\x0e\n" +
+	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x1a\n" +
+	"\broleName\x18\x02 \x01(\tR\broleName\"0\n" +
+	"\x14DeleteCustomRoleResp\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"R\n" +
+	"\x12ListCustomRolesReq\x12\x0e\n" +
+	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\xcf\x01\n" +
+	"\x13CustomRoleListEntry\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdisplayName\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12(\n" +
+	"\x0fpermissionCount\x18\x04 \x01(\x05R\x0fpermissionCount\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1c\n" +
+	"\tcreatedBy\x18\x06 \x01(\tR\tcreatedBy\"[\n" +
+	"\x13ListCustomRolesResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x12.\n" +
+	"\x05items\x18\x02 \x03(\v2\x18.api.CustomRoleListEntryR\x05items2\xb5\a\n" +
 	"\vOrgUnitRole\x12\x88\x01\n" +
 	"\x10ListOrgUnitRoles\x12\x18.api.OrgUnitRolesListReq\x1a\x19.api.OrgUnitRolesListResp\"?\x8a\xb5\x18\x19\n" +
-	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/rolesB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x9b\x01\n" +
+	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"R\x8a\xb5\x18\"\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x1a\x06create\x82\xd3\xe4\x93\x02&:\x01*\"!/api/auth/v1/ou/{ou}/custom-roles\x12\xa6\x01\n" +
+	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"]\x8a\xb5\x18\"\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x021:\x01*\x1a,/api/auth/v1/ou/{ou}/custom-roles/{roleName}\x12\x97\x01\n" +
+	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"W\x8a\xb5\x18\x1f\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x1a\x03get\x82\xd3\xe4\x93\x02.\x12,/api/auth/v1/ou/{ou}/custom-roles/{roleName}\x12\xa3\x01\n" +
+	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"Z\x8a\xb5\x18\"\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02.*,/api/auth/v1/ou/{ou}/custom-roles/{roleName}\x12\x93\x01\n" +
+	"\x0fListCustomRoles\x12\x17.api.ListCustomRolesReq\x1a\x18.api.ListCustomRolesResp\"M\x8a\xb5\x18 \n" +
+	"\x14org-unit-custom-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02#\x12!/api/auth/v1/ou/{ou}/custom-rolesB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_org_unit_role_proto_rawDescOnce sync.Once
@@ -200,21 +1046,47 @@ func file_org_unit_role_proto_rawDescGZIP() []byte {
 	return file_org_unit_role_proto_rawDescData
 }
 
-var file_org_unit_role_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_org_unit_role_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_org_unit_role_proto_goTypes = []any{
 	(*OrgUnitRolesListReq)(nil),   // 0: api.OrgUnitRolesListReq
 	(*OrgUnitRolesListEntry)(nil), // 1: api.OrgUnitRolesListEntry
 	(*OrgUnitRolesListResp)(nil),  // 2: api.OrgUnitRolesListResp
+	(*RolePermission)(nil),        // 3: api.RolePermission
+	(*CreateCustomRoleReq)(nil),   // 4: api.CreateCustomRoleReq
+	(*CreateCustomRoleResp)(nil),  // 5: api.CreateCustomRoleResp
+	(*UpdateCustomRoleReq)(nil),   // 6: api.UpdateCustomRoleReq
+	(*UpdateCustomRoleResp)(nil),  // 7: api.UpdateCustomRoleResp
+	(*GetCustomRoleReq)(nil),      // 8: api.GetCustomRoleReq
+	(*GetCustomRoleResp)(nil),     // 9: api.GetCustomRoleResp
+	(*DeleteCustomRoleReq)(nil),   // 10: api.DeleteCustomRoleReq
+	(*DeleteCustomRoleResp)(nil),  // 11: api.DeleteCustomRoleResp
+	(*ListCustomRolesReq)(nil),    // 12: api.ListCustomRolesReq
+	(*CustomRoleListEntry)(nil),   // 13: api.CustomRoleListEntry
+	(*ListCustomRolesResp)(nil),   // 14: api.ListCustomRolesResp
 }
 var file_org_unit_role_proto_depIdxs = []int32{
-	1, // 0: api.OrgUnitRolesListResp.items:type_name -> api.OrgUnitRolesListEntry
-	0, // 1: api.OrgUnitRole.ListOrgUnitRoles:input_type -> api.OrgUnitRolesListReq
-	2, // 2: api.OrgUnitRole.ListOrgUnitRoles:output_type -> api.OrgUnitRolesListResp
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1,  // 0: api.OrgUnitRolesListResp.items:type_name -> api.OrgUnitRolesListEntry
+	3,  // 1: api.CreateCustomRoleReq.permissions:type_name -> api.RolePermission
+	3,  // 2: api.UpdateCustomRoleReq.permissions:type_name -> api.RolePermission
+	3,  // 3: api.GetCustomRoleResp.permissions:type_name -> api.RolePermission
+	13, // 4: api.ListCustomRolesResp.items:type_name -> api.CustomRoleListEntry
+	0,  // 5: api.OrgUnitRole.ListOrgUnitRoles:input_type -> api.OrgUnitRolesListReq
+	4,  // 6: api.OrgUnitRole.CreateCustomRole:input_type -> api.CreateCustomRoleReq
+	6,  // 7: api.OrgUnitRole.UpdateCustomRole:input_type -> api.UpdateCustomRoleReq
+	8,  // 8: api.OrgUnitRole.GetCustomRole:input_type -> api.GetCustomRoleReq
+	10, // 9: api.OrgUnitRole.DeleteCustomRole:input_type -> api.DeleteCustomRoleReq
+	12, // 10: api.OrgUnitRole.ListCustomRoles:input_type -> api.ListCustomRolesReq
+	2,  // 11: api.OrgUnitRole.ListOrgUnitRoles:output_type -> api.OrgUnitRolesListResp
+	5,  // 12: api.OrgUnitRole.CreateCustomRole:output_type -> api.CreateCustomRoleResp
+	7,  // 13: api.OrgUnitRole.UpdateCustomRole:output_type -> api.UpdateCustomRoleResp
+	9,  // 14: api.OrgUnitRole.GetCustomRole:output_type -> api.GetCustomRoleResp
+	11, // 15: api.OrgUnitRole.DeleteCustomRole:output_type -> api.DeleteCustomRoleResp
+	14, // 16: api.OrgUnitRole.ListCustomRoles:output_type -> api.ListCustomRolesResp
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_org_unit_role_proto_init() }
@@ -228,7 +1100,7 @@ func file_org_unit_role_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_org_unit_role_proto_rawDesc), len(file_org_unit_role_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
