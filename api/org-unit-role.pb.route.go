@@ -44,11 +44,4 @@ func init() {
 	route.Scopes = append(route.Scopes, "ou")
 	route.Verb = "delete"
 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
-
-	// Adding Route information for ListCustomRoles RPC
-	route = model.NewRoute("/api/auth/v1/ou/{ou}/roles/custom", "GET")
-	route.Resource = "org-unit-custom-role"
-	route.Scopes = append(route.Scopes, "ou")
-	route.Verb = "list"
-	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
 }

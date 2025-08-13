@@ -281,46 +281,6 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 	}, nil
 }
 
-// ListCustomRoles retrieves all custom roles for the organization unit
-func (s *OrgUnitRoleServer) ListCustomRoles(ctx context.Context, req *api.ListCustomRolesReq) (*api.ListCustomRolesResp, error) {
-	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
-	if authInfo == nil {
-		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
-	}
-
-	// Get count of custom roles for pagination
-	count, err := s.customRoleTable.CountByOrgUnit(ctx, authInfo.Realm, req.Ou)
-	if err != nil {
-		log.Printf("failed to count custom roles: %s", err)
-		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
-	}
-
-	// Get list of custom roles with pagination
-	customRoles, err := s.customRoleTable.GetByOrgUnit(ctx, authInfo.Realm, req.Ou, req.Offset, req.Limit)
-	if err != nil {
-		log.Printf("failed to list custom roles: %s", err)
-		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
-	}
-
-	// Convert to response format
-	var items []*api.CustomRoleListEntry
-	for _, role := range customRoles {
-		items = append(items, &api.CustomRoleListEntry{
-			Name:            role.Key.Name,                // Role name
-			DisplayName:     role.DisplayName,             // Human-readable name
-			Description:     role.Description,             // Role description
-			PermissionCount: int32(len(role.Permissions)), // Number of permissions
-			Created:         role.Created,                 // Creation timestamp
-			CreatedBy:       role.CreatedBy,               // Creator username
-		})
-	}
-
-	return &api.ListCustomRolesResp{
-		Count: count, // Total count for pagination
-		Items: items, // List of custom role entries
-	}, nil
-}
-
 func NewOrgUnitRoleServer(ctx *model.GrpcServerContext, ep string) *OrgUnitRoleServer {
 	// Get the custom role table for managing org unit custom roles
 	customRoleTable, err := table.GetOrgUnitCustomRoleTable()

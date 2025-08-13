@@ -74,18 +74,6 @@ service OrgUnitRole {
       verb: "delete"
     };
   }
-
-  // List all custom roles for the organization unit
-  rpc ListCustomRoles(ListCustomRolesReq) returns (ListCustomRolesResp) {
-    option (google.api.http) = {
-      get: "/api/auth/v1/ou/{ou}/roles/custom"
-    };
-    option (api.role) = {
-      resource: "org-unit-custom-role"
-      scope: "ou"
-      verb: "list"
-    };
-  }
 }
 
 // org unit roles list request
@@ -230,46 +218,4 @@ message DeleteCustomRoleReq {
 message DeleteCustomRoleResp {
   // Confirmation message
   string message = 1;
-}
-
-// List custom roles request
-message ListCustomRolesReq {
-  // Organization unit ID
-  string ou = 1;
-
-  // Pagination offset
-  int32 offset = 2;
-
-  // Pagination limit
-  int32 limit = 3;
-}
-
-// Custom role list entry
-message CustomRoleListEntry {
-  // Name of the custom role
-  string name = 1;
-
-  // Display name for the custom role
-  string displayName = 2;
-
-  // Description explaining the purpose of this custom role
-  string description = 3;
-
-  // Number of permissions associated with this role
-  int32 permissionCount = 4;
-
-  // Timestamp when the role was created
-  int64 created = 5;
-
-  // User who created this custom role
-  string createdBy = 6;
-}
-
-// List custom roles response
-message ListCustomRolesResp {
-  // Total count of custom roles for pagination
-  int32 count = 1;
-
-  // List of custom roles
-  repeated CustomRoleListEntry items = 2;
 }

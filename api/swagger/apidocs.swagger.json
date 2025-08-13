@@ -410,54 +410,6 @@
         ]
       }
     },
-    "/api/auth/v1/ou/{ou}/roles/custom": {
-      "get": {
-        "summary": "List all custom roles for the organization unit",
-        "operationId": "OrgUnitRole_ListCustomRoles",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/apiListCustomRolesResp"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "ou",
-            "description": "Organization unit ID",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "offset",
-            "description": "Pagination offset",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "limit",
-            "description": "Pagination limit",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "tags": [
-          "OrgUnitRole"
-        ]
-      }
-    },
     "/api/auth/v1/ou/{ou}/user": {
       "post": {
         "summary": "Add user to the org unit",
@@ -2310,38 +2262,6 @@
       },
       "title": "Create custom role response"
     },
-    "apiCustomRoleListEntry": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "title": "Name of the custom role"
-        },
-        "displayName": {
-          "type": "string",
-          "title": "Display name for the custom role"
-        },
-        "description": {
-          "type": "string",
-          "title": "Description explaining the purpose of this custom role"
-        },
-        "permissionCount": {
-          "type": "integer",
-          "format": "int32",
-          "title": "Number of permissions associated with this role"
-        },
-        "created": {
-          "type": "string",
-          "format": "int64",
-          "title": "Timestamp when the role was created"
-        },
-        "createdBy": {
-          "type": "string",
-          "title": "User who created this custom role"
-        }
-      },
-      "title": "Custom role list entry"
-    },
     "apiCustomerAddReq": {
       "type": "object",
       "properties": {
@@ -2502,25 +2422,6 @@
         }
       },
       "title": "Get custom role response"
-    },
-    "apiListCustomRolesResp": {
-      "type": "object",
-      "properties": {
-        "count": {
-          "type": "integer",
-          "format": "int32",
-          "title": "Total count of custom roles for pagination"
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/apiCustomRoleListEntry"
-          },
-          "title": "List of custom roles"
-        }
-      },
-      "title": "List custom roles response"
     },
     "apiMyAzsListEntry": {
       "type": "object",
