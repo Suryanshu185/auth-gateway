@@ -19,7 +19,7 @@ service OrgUnitUser {
     };
     option (api.role) = {
       resource: "org-unit-user-role"
-      scope: "ou"
+      scope: ["ou", "vpc"]
       verb: "list"
     };
   }
@@ -32,7 +32,7 @@ service OrgUnitUser {
     };
     option (api.role) = {
       resource: "org-unit-user-role"
-      scope: "ou"
+      scope: ["ou", "vpc"]
       verb: "add"
     };
   }
@@ -45,7 +45,7 @@ service OrgUnitUser {
     };
     option (api.role) = {
       resource: "org-unit-user-role"
-      scope: "ou"
+      scope: ["ou", "vpc"]
       verb: "update"
     };
   }
@@ -57,7 +57,7 @@ service OrgUnitUser {
     };
     option (api.role) = {
       resource: "org-unit-user-role"
-      scope: "ou"
+      scope: ["ou", "vpc"]
       verb: "delete"
     };
   }

@@ -14,6 +14,7 @@ func init() {
 	route = model.NewRoute("/api/auth/v1/ou/{ou}/users", "GET")
 	route.Resource = "org-unit-user-role"
 	route.Scopes = append(route.Scopes, "ou")
+	route.Scopes = append(route.Scopes, "vpc")
 	route.Verb = "list"
 	RoutesOrgUnitUser = append(RoutesOrgUnitUser, route)
 
@@ -21,6 +22,7 @@ func init() {
 	route = model.NewRoute("/api/auth/v1/ou/{ou}/user", "POST")
 	route.Resource = "org-unit-user-role"
 	route.Scopes = append(route.Scopes, "ou")
+	route.Scopes = append(route.Scopes, "vpc")
 	route.Verb = "add"
 	RoutesOrgUnitUser = append(RoutesOrgUnitUser, route)
 
@@ -28,6 +30,7 @@ func init() {
 	route = model.NewRoute("/api/auth/v1/ou/{ou}/user/{user}", "PUT")
 	route.Resource = "org-unit-user-role"
 	route.Scopes = append(route.Scopes, "ou")
+	route.Scopes = append(route.Scopes, "vpc")
 	route.Verb = "update"
 	RoutesOrgUnitUser = append(RoutesOrgUnitUser, route)
 
@@ -35,6 +38,7 @@ func init() {
 	route = model.NewRoute("/api/auth/v1/ou/{ou}/user/{user}", "DELETE")
 	route.Resource = "org-unit-user-role"
 	route.Scopes = append(route.Scopes, "ou")
+	route.Scopes = append(route.Scopes, "vpc")
 	route.Verb = "delete"
 	RoutesOrgUnitUser = append(RoutesOrgUnitUser, route)
 }

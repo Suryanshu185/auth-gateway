@@ -835,18 +835,18 @@ const file_org_unit_role_proto_rawDesc = "" +
 	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"0\n" +
 	"\x14DeleteCustomRoleResp\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\xf3\x05\n" +
-	"\vOrgUnitRole\x12\x88\x01\n" +
-	"\x10ListOrgUnitRoles\x12\x18.api.OrgUnitRolesListReq\x1a\x19.api.OrgUnitRolesListResp\"?\x8a\xb5\x18\x19\n" +
-	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x93\x01\n" +
-	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"J\x8a\xb5\x18\"\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06create\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/role\x12\x9a\x01\n" +
-	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"Q\x8a\xb5\x18\"\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/role/{name}\x12\x8b\x01\n" +
-	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"K\x8a\xb5\x18\x1f\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/auth/v1/ou/{ou}/role/{name}\x12\x97\x01\n" +
-	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"N\x8a\xb5\x18\"\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/role/{name}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\amessage\x18\x01 \x01(\tR\amessage2\x8c\x06\n" +
+	"\vOrgUnitRole\x12\x8d\x01\n" +
+	"\x10ListOrgUnitRoles\x12\x18.api.OrgUnitRolesListReq\x1a\x19.api.OrgUnitRolesListResp\"D\x8a\xb5\x18\x1e\n" +
+	"\rorg-unit-role\x12\x02ou\x12\x03vpc\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x98\x01\n" +
+	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"O\x8a\xb5\x18'\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x12\x03vpc\x1a\x06create\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/role\x12\x9f\x01\n" +
+	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"V\x8a\xb5\x18'\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x12\x03vpc\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/role/{name}\x12\x90\x01\n" +
+	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"P\x8a\xb5\x18$\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x12\x03vpc\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/auth/v1/ou/{ou}/role/{name}\x12\x9c\x01\n" +
+	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"S\x8a\xb5\x18'\n" +
+	"\x14org-unit-custom-role\x12\x02ou\x12\x03vpc\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/role/{name}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_org_unit_role_proto_rawDescOnce sync.Once

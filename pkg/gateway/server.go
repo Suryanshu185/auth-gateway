@@ -31,7 +31,39 @@ type gwContextKey string
 const (
 	authKey gwContextKey = "auth"
 	ouKey   gwContextKey = "ou"
+	vpcKey  gwContextKey = "vpc"
 )
+
+// GetOrgUnitFromContext extracts the organization unit ID from request context
+func GetOrgUnitFromContext(ctx context.Context) string {
+	if ou, ok := ctx.Value(ouKey).(string); ok {
+		return ou
+	}
+	return ""
+}
+
+// GetVPCFromContext extracts the VPC ID from request context
+func GetVPCFromContext(ctx context.Context) string {
+	if vpc, ok := ctx.Value(vpcKey).(string); ok {
+		return vpc
+	}
+	return ""
+}
+
+// GetScopeParamsFromContext extracts all scope parameters from request context
+func GetScopeParamsFromContext(ctx context.Context) map[string]string {
+	params := make(map[string]string)
+
+	if ou := GetOrgUnitFromContext(ctx); ou != "" {
+		params["ou"] = ou
+	}
+
+	if vpc := GetVPCFromContext(ctx); vpc != "" {
+		params["vpc"] = vpc
+	}
+
+	return params
+}
 
 type gateway struct {
 	http.Handler
@@ -290,16 +322,6 @@ func (s *gateway) extractRouteInfo(r *http.Request) (*RouteInfo, error) {
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var status int
-	var authInfo *common.AuthInfo
-	var orgUnit string
-
-	defer func() {
-		if status != 0 {
-			s.handleAccessLog(authInfo, orgUnit, r, status)
-		}
-	}()
-
 	path := r.URL.RawPath
 	if path == "" {
 		// if the path does not contain such explicitly encoded
@@ -307,12 +329,23 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// RawPath will be an empty string
 		path = r.URL.Path
 	}
-	match, orgUnit, err := matchRoute(r.Method, path)
+	match, scopeParams, err := matchRoute(r.Method, path)
 	if err != nil {
-		status = http.StatusNotFound
-		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, path), status)
+		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, path), http.StatusNotFound)
 		return
 	}
+
+	// Extract orgUnit and vpcId from scope parameters for backward compatibility
+	orgUnit := scopeParams["ou"]
+	vpcId := scopeParams["vpc"]
+
+	var authInfo *common.AuthInfo
+	var status int
+	defer func() {
+		if status != 0 {
+			s.handleAccessLog(authInfo, orgUnit, vpcId, r, status)
+		}
+	}()
 
 	if match.isPublic {
 		// even for public route ensure that we have auth info
@@ -337,6 +370,10 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		newCtx := context.WithValue(r.Context(), authKey, *authInfo)
 		newCtx = context.WithValue(newCtx, ouKey, orgUnit)
+		// Set VPC context if vpc scope parameter is present
+		if vpcId != "" {
+			newCtx = context.WithValue(newCtx, vpcKey, vpcId)
+		}
 		r = r.WithContext(newCtx)
 		if !match.isUserSpecific {
 			if match.isRoot && !authInfo.IsRoot {
@@ -386,6 +423,38 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+
+		// validate VPC scope - similar validation as org unit
+		// Note: This assumes you have a VPC table similar to org unit table
+		// If you don't have a VPC table yet, you may need to implement this differently
+		if vpcId != "" {
+			// TODO: Implement VPC validation logic here
+			// This should follow the same pattern as org unit validation:
+			// 1. Check if VPC exists and is associated with tenant
+			// 2. Handle NotFound and other errors appropriately
+			// 3. Return appropriate HTTP status codes
+			//
+			// Example implementation (uncomment when VPC table is available):
+			// vpcList, err := s.vpcTbl.FindByTenant(r.Context(), authInfo.Realm, vpcId)
+			// if err != nil {
+			//     if errors.IsNotFound(err) {
+			//         status = http.StatusNotFound
+			//         http.Error(w, fmt.Sprintf("VPC %s not found", vpcId), status)
+			//         return
+			//     }
+			//     log.Printf("Failed to find VPC %s in tenant %s: %s", vpcId, authInfo.Realm, err)
+			//     status = http.StatusInternalServerError
+			//     http.Error(w, "Something went wrong while processing request", status)
+			//     return
+			// }
+			// if len(vpcList) == 0 {
+			//     status = http.StatusNotFound
+			//     http.Error(w, fmt.Sprintf("VPC %s not found", vpcId), status)
+			//     return
+			// }
+
+			log.Printf("VPC validation not yet implemented for VPC %s in tenant %s", vpcId, authInfo.Realm)
+		}
 	}
 
 	r.URL.Scheme = match.scheme
@@ -409,7 +478,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.Request, status int) {
+func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, vpc string, r *http.Request, status int) {
 	path := r.URL.RawPath
 	if path == "" {
 		// if the path does not contain such explicitly encoded
@@ -420,6 +489,9 @@ func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.
 	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, path, status)
 	if ou != "" {
 		msg += fmt.Sprintf(", ou: %s", ou)
+	}
+	if vpc != "" {
+		msg += fmt.Sprintf(", vpc: %s", vpc)
 	}
 	if authInfo != nil {
 		msg += fmt.Sprintf(", accessed by %s:%s", authInfo.Realm, authInfo.UserName)
@@ -440,7 +512,11 @@ func (s *gateway) ModifyResponse(resp *http.Response) error {
 	if !ok {
 		ou = ""
 	}
-	s.handleAccessLog(authInfo, ou, resp.Request, resp.StatusCode)
+	vpc, ok := resp.Request.Context().Value(vpcKey).(string)
+	if !ok {
+		vpc = ""
+	}
+	s.handleAccessLog(authInfo, ou, vpc, resp.Request, resp.StatusCode)
 	return nil
 }
 
