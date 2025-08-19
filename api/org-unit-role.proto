@@ -19,7 +19,7 @@ service OrgUnitRole {
     };
     option (api.role) = {
       resource: "org-unit-role"
-      scope: ["ou", "vpc"]
+      scope: ["ou"]
       verb: "list"
     };
   }
@@ -32,7 +32,7 @@ service OrgUnitRole {
     };
     option (api.role) = {
       resource: "org-unit-custom-role"
-      scope: ["ou", "vpc"]
+      scope: ["ou"]
       verb: "create"
     };
   }
@@ -45,7 +45,7 @@ service OrgUnitRole {
     };
     option (api.role) = {
       resource: "org-unit-custom-role"
-      scope: ["ou", "vpc"]
+      scope: ["ou"]
       verb: "update"
     };
   }
@@ -57,7 +57,7 @@ service OrgUnitRole {
     };
     option (api.role) = {
       resource: "org-unit-custom-role"
-      scope: ["ou", "vpc"]
+      scope: ["ou"]
       verb: "get"
     };
   }
@@ -70,7 +70,7 @@ service OrgUnitRole {
     };
     option (api.role) = {
       resource: "org-unit-custom-role"
-      scope: ["ou", "vpc"]
+      scope: ["ou"]
       verb: "delete"
     };
   }

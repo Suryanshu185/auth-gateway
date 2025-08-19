@@ -542,16 +542,16 @@ const file_org_unit_user_proto_rawDesc = "" +
 	"\x14OrgUnitUserDeleteReq\x12\x0e\n" +
 	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
 	"\x04user\x18\x02 \x01(\tR\x04user\"\x17\n" +
-	"\x15OrgUnitUserDeleteResp2\xf5\x04\n" +
-	"\vOrgUnitUser\x12\x92\x01\n" +
-	"\x10ListOrgUnitUsers\x12\x18.api.OrgUnitUsersListReq\x1a\x19.api.OrgUnitUsersListResp\"I\x8a\xb5\x18#\n" +
-	"\x12org-unit-user-role\x12\x02ou\x12\x03vpc\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/users\x12\x8d\x01\n" +
-	"\x0eAddOrgUnitUser\x12\x16.api.OrgUnitUserAddReq\x1a\x17.api.OrgUnitUserAddResp\"J\x8a\xb5\x18\"\n" +
-	"\x12org-unit-user-role\x12\x02ou\x12\x03vpc\x1a\x03add\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/user\x12\xa0\x01\n" +
-	"\x11UpdateOrgUnitUser\x12\x19.api.OrgUnitUserUpdateReq\x1a\x1a.api.OrgUnitUserUpdateResp\"T\x8a\xb5\x18%\n" +
-	"\x12org-unit-user-role\x12\x02ou\x12\x03vpc\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/user/{user}\x12\x9d\x01\n" +
-	"\x11DeleteOrgUnitUser\x12\x19.api.OrgUnitUserDeleteReq\x1a\x1a.api.OrgUnitUserDeleteResp\"Q\x8a\xb5\x18%\n" +
-	"\x12org-unit-user-role\x12\x02ou\x12\x03vpc\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/user/{user}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\x15OrgUnitUserDeleteResp2\xe1\x04\n" +
+	"\vOrgUnitUser\x12\x8d\x01\n" +
+	"\x10ListOrgUnitUsers\x12\x18.api.OrgUnitUsersListReq\x1a\x19.api.OrgUnitUsersListResp\"D\x8a\xb5\x18\x1e\n" +
+	"\x12org-unit-user-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/users\x12\x88\x01\n" +
+	"\x0eAddOrgUnitUser\x12\x16.api.OrgUnitUserAddReq\x1a\x17.api.OrgUnitUserAddResp\"E\x8a\xb5\x18\x1d\n" +
+	"\x12org-unit-user-role\x12\x02ou\x1a\x03add\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/user\x12\x9b\x01\n" +
+	"\x11UpdateOrgUnitUser\x12\x19.api.OrgUnitUserUpdateReq\x1a\x1a.api.OrgUnitUserUpdateResp\"O\x8a\xb5\x18 \n" +
+	"\x12org-unit-user-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/user/{user}\x12\x98\x01\n" +
+	"\x11DeleteOrgUnitUser\x12\x19.api.OrgUnitUserDeleteReq\x1a\x1a.api.OrgUnitUserDeleteResp\"L\x8a\xb5\x18 \n" +
+	"\x12org-unit-user-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/user/{user}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_org_unit_user_proto_rawDescOnce sync.Once
