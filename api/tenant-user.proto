@@ -6,6 +6,7 @@ syntax = "proto3";
 package api;
 
 import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/go-core-stack/auth-gateway/api";
@@ -85,6 +86,17 @@ service TenantUser {
     option (google.api.http) = {
       post: "/api/auth/v1/tenant/{tenant}/user/{username}/logout"
       body: "*"
+    };
+  }
+
+  // List org units where a specific user has roles (ops admin cross-tenant access)
+  rpc ListTenantOrgUnitsWithRoles(TenantOrgUnitsWithRolesListReq) returns (TenantOrgUnitsWithRolesListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/tenant/{tenant}/user/{username}/ous"
+    };
+    option (api.role) = {
+      resource: "tenant-org-unit-roles"
+      verb: "list"
     };
   }
 }
@@ -347,4 +359,67 @@ message TenantUserSessionLogoutReq {
 
 // user session logout response
 message TenantUserSessionLogoutResp {
+}
+
+// request for listing org units with user roles for a tenant
+message TenantOrgUnitsWithRolesListReq {
+  // tenant id to get org units and roles for
+  string tenant = 1;
+
+  // username to get org units and roles for
+  string username = 2;
+
+  // offset from where to start
+  int32 offset = 3;
+
+  // limit the number of entries in the response  
+  int32 limit = 4;
+
+  // optional user filter - if provided, only show org units where this user has roles
+  string userId = 5;
+}
+
+// org unit entry with user roles
+message TenantOrgUnitWithRoles {
+  // org unit id
+  string orgUnitId = 1;
+
+  // org unit display name
+  string orgUnitName = 2;
+
+  // org unit description
+  string orgUnitDesc = 3;
+
+  // list of users and their roles in this org unit
+  repeated UserRoleEntry userRoles = 4;
+}
+
+// user role entry within an org unit
+message UserRoleEntry {
+  // user id
+  string userId = 1;
+
+  // username
+  string username = 2;
+
+  // user's first name
+  string firstName = 3;
+
+  // user's last name
+  string lastName = 4;
+
+  // role assigned to the user in this org unit
+  string roleName = 5;
+
+  // role description
+  string roleDesc = 6;
+}
+
+// response for listing org units with user roles
+message TenantOrgUnitsWithRolesListResp {
+  // total count of org units
+  int32 count = 1;
+
+  // list of org units with their user roles
+  repeated TenantOrgUnitWithRoles items = 2;
 }

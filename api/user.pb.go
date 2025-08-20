@@ -1271,6 +1271,225 @@ func (*UserSessionLogoutResp) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{19}
 }
 
+// request for listing org units with roles for the current user
+type MyOrgUnitsWithRolesListReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// username parameter from the URL path
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	// offset from where to start
+	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	// limit the number of entries in the response
+	Limit         int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyOrgUnitsWithRolesListReq) Reset() {
+	*x = MyOrgUnitsWithRolesListReq{}
+	mi := &file_user_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyOrgUnitsWithRolesListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyOrgUnitsWithRolesListReq) ProtoMessage() {}
+
+func (x *MyOrgUnitsWithRolesListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyOrgUnitsWithRolesListReq.ProtoReflect.Descriptor instead.
+func (*MyOrgUnitsWithRolesListReq) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *MyOrgUnitsWithRolesListReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *MyOrgUnitsWithRolesListReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *MyOrgUnitsWithRolesListReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// org unit entry with the current user's role
+type MyOrgUnitWithRole struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id
+	OrgUnitId string `protobuf:"bytes,1,opt,name=orgUnitId,proto3" json:"orgUnitId,omitempty"`
+	// org unit display name
+	OrgUnitName string `protobuf:"bytes,2,opt,name=orgUnitName,proto3" json:"orgUnitName,omitempty"`
+	// org unit description
+	OrgUnitDesc string `protobuf:"bytes,3,opt,name=orgUnitDesc,proto3" json:"orgUnitDesc,omitempty"`
+	// current user's role in this org unit
+	RoleName string `protobuf:"bytes,4,opt,name=roleName,proto3" json:"roleName,omitempty"`
+	// role description
+	RoleDesc string `protobuf:"bytes,5,opt,name=roleDesc,proto3" json:"roleDesc,omitempty"`
+	// when the user was assigned this role
+	AssignedAt int64 `protobuf:"varint,6,opt,name=assignedAt,proto3" json:"assignedAt,omitempty"`
+	// whether this is the user's default org unit
+	IsDefault     bool `protobuf:"varint,7,opt,name=isDefault,proto3" json:"isDefault,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyOrgUnitWithRole) Reset() {
+	*x = MyOrgUnitWithRole{}
+	mi := &file_user_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyOrgUnitWithRole) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyOrgUnitWithRole) ProtoMessage() {}
+
+func (x *MyOrgUnitWithRole) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyOrgUnitWithRole.ProtoReflect.Descriptor instead.
+func (*MyOrgUnitWithRole) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *MyOrgUnitWithRole) GetOrgUnitId() string {
+	if x != nil {
+		return x.OrgUnitId
+	}
+	return ""
+}
+
+func (x *MyOrgUnitWithRole) GetOrgUnitName() string {
+	if x != nil {
+		return x.OrgUnitName
+	}
+	return ""
+}
+
+func (x *MyOrgUnitWithRole) GetOrgUnitDesc() string {
+	if x != nil {
+		return x.OrgUnitDesc
+	}
+	return ""
+}
+
+func (x *MyOrgUnitWithRole) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *MyOrgUnitWithRole) GetRoleDesc() string {
+	if x != nil {
+		return x.RoleDesc
+	}
+	return ""
+}
+
+func (x *MyOrgUnitWithRole) GetAssignedAt() int64 {
+	if x != nil {
+		return x.AssignedAt
+	}
+	return 0
+}
+
+func (x *MyOrgUnitWithRole) GetIsDefault() bool {
+	if x != nil {
+		return x.IsDefault
+	}
+	return false
+}
+
+// response for listing org units with user's roles
+type MyOrgUnitsWithRolesListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// total count of org units the user belongs to
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// list of org units with the user's roles
+	Items         []*MyOrgUnitWithRole `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyOrgUnitsWithRolesListResp) Reset() {
+	*x = MyOrgUnitsWithRolesListResp{}
+	mi := &file_user_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyOrgUnitsWithRolesListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyOrgUnitsWithRolesListResp) ProtoMessage() {}
+
+func (x *MyOrgUnitsWithRolesListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyOrgUnitsWithRolesListResp.ProtoReflect.Descriptor instead.
+func (*MyOrgUnitsWithRolesListResp) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *MyOrgUnitsWithRolesListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *MyOrgUnitsWithRolesListResp) GetItems() []*MyOrgUnitWithRole {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -1359,7 +1578,24 @@ const file_user_proto_rawDesc = "" +
 	"\x14UserSessionLogoutReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x02 \x01(\tR\tsessionId\"\x17\n" +
-	"\x15UserSessionLogoutResp2\xb2\b\n" +
+	"\x15UserSessionLogoutResp\"f\n" +
+	"\x1aMyOrgUnitsWithRolesListReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\xeb\x01\n" +
+	"\x11MyOrgUnitWithRole\x12\x1c\n" +
+	"\torgUnitId\x18\x01 \x01(\tR\torgUnitId\x12 \n" +
+	"\vorgUnitName\x18\x02 \x01(\tR\vorgUnitName\x12 \n" +
+	"\vorgUnitDesc\x18\x03 \x01(\tR\vorgUnitDesc\x12\x1a\n" +
+	"\broleName\x18\x04 \x01(\tR\broleName\x12\x1a\n" +
+	"\broleDesc\x18\x05 \x01(\tR\broleDesc\x12\x1e\n" +
+	"\n" +
+	"assignedAt\x18\x06 \x01(\x03R\n" +
+	"assignedAt\x12\x1c\n" +
+	"\tisDefault\x18\a \x01(\bR\tisDefault\"a\n" +
+	"\x1bMyOrgUnitsWithRolesListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x12,\n" +
+	"\x05items\x18\x02 \x03(\v2\x16.api.MyOrgUnitWithRoleR\x05items2\xdc\t\n" +
 	"\x04User\x12a\n" +
 	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\".\x8a\xb5\x18\f\n" +
 	"\x04user\x1a\x04list\x82\xd3\xe4\x93\x02\x18\x12\x16/api/mytenant/v1/users\x12i\n" +
@@ -1382,7 +1618,9 @@ const file_user_proto_rawDesc = "" +
 	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"9\x8a\xb5\x18\x14\n" +
 	"\x04user\x1a\fget-sessions\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12\x90\x01\n" +
 	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\"D\x8a\xb5\x18\x0e\n" +
-	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logout\x12\xa7\x01\n" +
+	"\x17ListMyOrgUnitsWithRoles\x12\x1f.api.MyOrgUnitsWithRolesListReq\x1a .api.MyOrgUnitsWithRolesListResp\"I\x8a\xb5\x18\x19\n" +
+	"\x11my-org-unit-roles\x1a\x04list\x82\xd3\xe4\x93\x02&\x12$/api/mytenant/v1/user/{username}/ousB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -1396,55 +1634,61 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_user_proto_goTypes = []any{
-	(*UsersListReq)(nil),          // 0: api.UsersListReq
-	(*UserListEntry)(nil),         // 1: api.UserListEntry
-	(*UsersListResp)(nil),         // 2: api.UsersListResp
-	(*UserCreateReq)(nil),         // 3: api.UserCreateReq
-	(*UserCreateResp)(nil),        // 4: api.UserCreateResp
-	(*UserDeleteReq)(nil),         // 5: api.UserDeleteReq
-	(*UserDeleteResp)(nil),        // 6: api.UserDeleteResp
-	(*UserGetReq)(nil),            // 7: api.UserGetReq
-	(*UserGetResp)(nil),           // 8: api.UserGetResp
-	(*UserUpdateReq)(nil),         // 9: api.UserUpdateReq
-	(*UserUpdateResp)(nil),        // 10: api.UserUpdateResp
-	(*UserEnableReq)(nil),         // 11: api.UserEnableReq
-	(*UserEnableResp)(nil),        // 12: api.UserEnableResp
-	(*UserDisableReq)(nil),        // 13: api.UserDisableReq
-	(*UserDisableResp)(nil),       // 14: api.UserDisableResp
-	(*UserSessionsListReq)(nil),   // 15: api.UserSessionsListReq
-	(*UserSessionInfo)(nil),       // 16: api.UserSessionInfo
-	(*UserSessionsListResp)(nil),  // 17: api.UserSessionsListResp
-	(*UserSessionLogoutReq)(nil),  // 18: api.UserSessionLogoutReq
-	(*UserSessionLogoutResp)(nil), // 19: api.UserSessionLogoutResp
+	(*UsersListReq)(nil),                // 0: api.UsersListReq
+	(*UserListEntry)(nil),               // 1: api.UserListEntry
+	(*UsersListResp)(nil),               // 2: api.UsersListResp
+	(*UserCreateReq)(nil),               // 3: api.UserCreateReq
+	(*UserCreateResp)(nil),              // 4: api.UserCreateResp
+	(*UserDeleteReq)(nil),               // 5: api.UserDeleteReq
+	(*UserDeleteResp)(nil),              // 6: api.UserDeleteResp
+	(*UserGetReq)(nil),                  // 7: api.UserGetReq
+	(*UserGetResp)(nil),                 // 8: api.UserGetResp
+	(*UserUpdateReq)(nil),               // 9: api.UserUpdateReq
+	(*UserUpdateResp)(nil),              // 10: api.UserUpdateResp
+	(*UserEnableReq)(nil),               // 11: api.UserEnableReq
+	(*UserEnableResp)(nil),              // 12: api.UserEnableResp
+	(*UserDisableReq)(nil),              // 13: api.UserDisableReq
+	(*UserDisableResp)(nil),             // 14: api.UserDisableResp
+	(*UserSessionsListReq)(nil),         // 15: api.UserSessionsListReq
+	(*UserSessionInfo)(nil),             // 16: api.UserSessionInfo
+	(*UserSessionsListResp)(nil),        // 17: api.UserSessionsListResp
+	(*UserSessionLogoutReq)(nil),        // 18: api.UserSessionLogoutReq
+	(*UserSessionLogoutResp)(nil),       // 19: api.UserSessionLogoutResp
+	(*MyOrgUnitsWithRolesListReq)(nil),  // 20: api.MyOrgUnitsWithRolesListReq
+	(*MyOrgUnitWithRole)(nil),           // 21: api.MyOrgUnitWithRole
+	(*MyOrgUnitsWithRolesListResp)(nil), // 22: api.MyOrgUnitsWithRolesListResp
 }
 var file_user_proto_depIdxs = []int32{
 	1,  // 0: api.UsersListResp.items:type_name -> api.UserListEntry
 	16, // 1: api.UserSessionsListResp.items:type_name -> api.UserSessionInfo
-	0,  // 2: api.User.GetUsers:input_type -> api.UsersListReq
-	3,  // 3: api.User.CreateUser:input_type -> api.UserCreateReq
-	7,  // 4: api.User.GetUser:input_type -> api.UserGetReq
-	11, // 5: api.User.EnableUser:input_type -> api.UserEnableReq
-	13, // 6: api.User.DisableUser:input_type -> api.UserDisableReq
-	9,  // 7: api.User.UpdateUser:input_type -> api.UserUpdateReq
-	5,  // 8: api.User.DeleteUser:input_type -> api.UserDeleteReq
-	15, // 9: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
-	18, // 10: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
-	2,  // 11: api.User.GetUsers:output_type -> api.UsersListResp
-	4,  // 12: api.User.CreateUser:output_type -> api.UserCreateResp
-	8,  // 13: api.User.GetUser:output_type -> api.UserGetResp
-	12, // 14: api.User.EnableUser:output_type -> api.UserEnableResp
-	14, // 15: api.User.DisableUser:output_type -> api.UserDisableResp
-	10, // 16: api.User.UpdateUser:output_type -> api.UserUpdateResp
-	6,  // 17: api.User.DeleteUser:output_type -> api.UserDeleteResp
-	17, // 18: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
-	19, // 19: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	21, // 2: api.MyOrgUnitsWithRolesListResp.items:type_name -> api.MyOrgUnitWithRole
+	0,  // 3: api.User.GetUsers:input_type -> api.UsersListReq
+	3,  // 4: api.User.CreateUser:input_type -> api.UserCreateReq
+	7,  // 5: api.User.GetUser:input_type -> api.UserGetReq
+	11, // 6: api.User.EnableUser:input_type -> api.UserEnableReq
+	13, // 7: api.User.DisableUser:input_type -> api.UserDisableReq
+	9,  // 8: api.User.UpdateUser:input_type -> api.UserUpdateReq
+	5,  // 9: api.User.DeleteUser:input_type -> api.UserDeleteReq
+	15, // 10: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
+	18, // 11: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
+	20, // 12: api.User.ListMyOrgUnitsWithRoles:input_type -> api.MyOrgUnitsWithRolesListReq
+	2,  // 13: api.User.GetUsers:output_type -> api.UsersListResp
+	4,  // 14: api.User.CreateUser:output_type -> api.UserCreateResp
+	8,  // 15: api.User.GetUser:output_type -> api.UserGetResp
+	12, // 16: api.User.EnableUser:output_type -> api.UserEnableResp
+	14, // 17: api.User.DisableUser:output_type -> api.UserDisableResp
+	10, // 18: api.User.UpdateUser:output_type -> api.UserUpdateResp
+	6,  // 19: api.User.DeleteUser:output_type -> api.UserDeleteResp
+	17, // 20: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
+	19, // 21: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
+	22, // 22: api.User.ListMyOrgUnitsWithRoles:output_type -> api.MyOrgUnitsWithRolesListResp
+	13, // [13:23] is the sub-list for method output_type
+	3,  // [3:13] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -1458,7 +1702,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -26,9 +26,12 @@ import (
 
 type TenantUserApiServer struct {
 	api.UnimplementedTenantUserServer
-	tenantTbl *table.TenantTable
-	userTbl   *table.UserTable
-	client    *keycloak.Client
+	tenantTbl      *table.TenantTable
+	userTbl        *table.UserTable
+	orgUnitTbl     *table.OrgUnitTable
+	orgUnitUserTbl *table.OrgUnitUserTable
+	orgUnitRoleTbl *table.OrgUnitCustomRoleTable
+	client         *keycloak.Client
 }
 
 func (s *TenantUserApiServer) getTenant(ctx context.Context, name string) (*table.TenantEntry, error) {
@@ -425,6 +428,119 @@ func (s *TenantUserApiServer) LogoutUserSession(ctx context.Context, req *api.Te
 	return &api.TenantUserSessionLogoutResp{}, nil
 }
 
+func (s *TenantUserApiServer) ListTenantOrgUnitsWithRoles(ctx context.Context, req *api.TenantOrgUnitsWithRolesListReq) (*api.TenantOrgUnitsWithRolesListResp, error) {
+	log.Printf("received ListTenantOrgUnitsWithRoles request for user %s in tenant %s: %v", req.Username, req.Tenant, req)
+
+	// Validate tenant exists
+	tenantKey := &table.TenantKey{
+		Name: req.Tenant,
+	}
+	_, err := s.tenantTbl.Find(ctx, tenantKey)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "Tenant %s not found", req.Tenant)
+		}
+		log.Printf("error getting tenant %s: %s", req.Tenant, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	// Validate user exists in the tenant
+	userKey := &table.UserKey{
+		Tenant:   req.Tenant,
+		Username: req.Username,
+	}
+	_, err = s.userTbl.Find(ctx, userKey)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "User %s not found in tenant %s", req.Username, req.Tenant)
+		}
+		log.Printf("error getting user %s in tenant %s: %s", req.Username, req.Tenant, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	// Get org units where the specified user has roles
+	orgUnitUsers, err := s.orgUnitUserTbl.GetByUser(ctx, req.Tenant, req.Username)
+	if err != nil {
+		log.Printf("error getting org units for user %s in tenant %s: %s", req.Username, req.Tenant, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	// Apply pagination
+	totalCount := len(orgUnitUsers)
+	startIdx := int(req.Offset)
+	endIdx := startIdx + int(req.Limit)
+	if req.Limit == 0 || endIdx > totalCount {
+		endIdx = totalCount
+	}
+	if startIdx > totalCount {
+		startIdx = totalCount
+	}
+
+	resp := &api.TenantOrgUnitsWithRolesListResp{
+		Count: int32(totalCount),
+		Items: []*api.TenantOrgUnitWithRoles{},
+	}
+
+	// Process each org unit user entry
+	for _, ouUser := range orgUnitUsers[startIdx:endIdx] {
+		// Get org unit details
+		orgUnitKey := &table.OrgUnitKey{
+			ID: ouUser.Key.OrgUnitId,
+		}
+		orgUnitEntry, err := s.orgUnitTbl.Find(ctx, orgUnitKey)
+		if err != nil {
+			log.Printf("error getting org unit details for %s: %s", ouUser.Key.OrgUnitId, err)
+			continue // Skip this org unit but continue with others
+		}
+
+		// Get user details
+		userKey := &table.UserKey{
+			Tenant:   req.Tenant,
+			Username: req.Username,
+		}
+		userEntry, err := s.userTbl.Find(ctx, userKey)
+		if err != nil {
+			log.Printf("error getting user details for %s: %s", req.Username, err)
+			continue // Skip this entry but continue with others
+		}
+
+		// Get role description (check if it's a custom role)
+		roleDesc := ouUser.Role // Default to role name
+		customRoleKey := &table.OrgUnitCustomRoleKey{
+			Tenant:    req.Tenant,
+			OrgUnitId: ouUser.Key.OrgUnitId,
+			Name:      ouUser.Role,
+		}
+		customRole, err := s.orgUnitRoleTbl.Find(ctx, customRoleKey)
+		if err == nil && customRole != nil {
+			roleDesc = customRole.Description
+			if roleDesc == "" {
+				roleDesc = customRole.DisplayName
+			}
+		}
+
+		orgUnitWithRoles := &api.TenantOrgUnitWithRoles{
+			OrgUnitId:   orgUnitEntry.Key.ID,
+			OrgUnitName: orgUnitEntry.Name,
+			OrgUnitDesc: orgUnitEntry.Desc,
+			UserRoles: []*api.UserRoleEntry{
+				{
+					UserId:    req.Username,
+					Username:  req.Username,
+					FirstName: userEntry.Info.FirstName,
+					LastName:  userEntry.Info.LastName,
+					RoleName:  ouUser.Role,
+					RoleDesc:  roleDesc,
+				},
+			},
+		}
+
+		resp.Items = append(resp.Items, orgUnitWithRoles)
+	}
+
+	return resp, nil
+}
+
 func NewTenantUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *TenantUserApiServer {
 	tbl, err := table.GetTenantTable()
 	if err != nil {
@@ -434,10 +550,25 @@ func NewTenantUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, 
 	if err != nil {
 		log.Panicf("failed to get user table: %s", err)
 	}
+	orgUnitTbl, err := table.GetOrgUnitTable()
+	if err != nil {
+		log.Panicf("failed to get org unit table: %s", err)
+	}
+	orgUnitUserTbl, err := table.GetOrgUnitUserTable()
+	if err != nil {
+		log.Panicf("failed to get org unit user table: %s", err)
+	}
+	orgUnitRoleTbl, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("failed to get org unit custom role table: %s", err)
+	}
 	srv := &TenantUserApiServer{
-		tenantTbl: tbl,
-		userTbl:   uTbl,
-		client:    client,
+		tenantTbl:      tbl,
+		userTbl:        uTbl,
+		orgUnitTbl:     orgUnitTbl,
+		orgUnitUserTbl: orgUnitUserTbl,
+		orgUnitRoleTbl: orgUnitRoleTbl,
+		client:         client,
 	}
 	api.RegisterTenantUserServer(ctx.Server, srv)
 	err = api.RegisterTenantUserHandler(context.Background(), ctx.Mux, ctx.Conn)
@@ -456,6 +587,8 @@ func NewTenantUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, 
 		entry := &route.Route{
 			Key:      key,
 			Endpoint: ep,
+			Resource: r.Resource,
+			Verb:     r.Verb,
 			IsRoot:   utils.BoolP(true), // these routes are only meant for root tenancy
 		}
 		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {

@@ -112,6 +112,17 @@ service User {
       verb: "logout"
     };
   }
+
+  // List org units where a specific user has roles (tenant admin within-tenant access)
+  rpc ListMyOrgUnitsWithRoles(MyOrgUnitsWithRolesListReq) returns (MyOrgUnitsWithRolesListResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/user/{username}/ous"
+    };
+    option (api.role) = {
+      resource: "my-org-unit-roles"
+      verb: "list"
+    };
+  }
 }
 
 // Request List of users in a tenant
@@ -345,4 +356,49 @@ message UserSessionLogoutReq {
 
 // user session logout response
 message UserSessionLogoutResp {
+}
+
+// request for listing org units with roles for the current user
+message MyOrgUnitsWithRolesListReq {
+  // username parameter from the URL path
+  string username = 1;
+
+  // offset from where to start
+  int32 offset = 2;
+
+  // limit the number of entries in the response  
+  int32 limit = 3;
+}
+
+// org unit entry with the current user's role
+message MyOrgUnitWithRole {
+  // org unit id
+  string orgUnitId = 1;
+
+  // org unit display name
+  string orgUnitName = 2;
+
+  // org unit description
+  string orgUnitDesc = 3;
+
+  // current user's role in this org unit
+  string roleName = 4;
+
+  // role description
+  string roleDesc = 5;
+
+  // when the user was assigned this role
+  int64 assignedAt = 6;
+
+  // whether this is the user's default org unit
+  bool isDefault = 7;
+}
+
+// response for listing org units with user's roles
+message MyOrgUnitsWithRolesListResp {
+  // total count of org units the user belongs to
+  int32 count = 1;
+
+  // list of org units with the user's roles
+  repeated MyOrgUnitWithRole items = 2;
 }

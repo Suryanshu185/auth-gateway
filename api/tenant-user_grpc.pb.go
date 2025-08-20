@@ -22,15 +22,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TenantUser_GetUsers_FullMethodName          = "/api.TenantUser/GetUsers"
-	TenantUser_CreateUser_FullMethodName        = "/api.TenantUser/CreateUser"
-	TenantUser_GetUser_FullMethodName           = "/api.TenantUser/GetUser"
-	TenantUser_EnableUser_FullMethodName        = "/api.TenantUser/EnableUser"
-	TenantUser_DisableUser_FullMethodName       = "/api.TenantUser/DisableUser"
-	TenantUser_UpdateUser_FullMethodName        = "/api.TenantUser/UpdateUser"
-	TenantUser_DeleteUser_FullMethodName        = "/api.TenantUser/DeleteUser"
-	TenantUser_ListUserSessions_FullMethodName  = "/api.TenantUser/ListUserSessions"
-	TenantUser_LogoutUserSession_FullMethodName = "/api.TenantUser/LogoutUserSession"
+	TenantUser_GetUsers_FullMethodName                    = "/api.TenantUser/GetUsers"
+	TenantUser_CreateUser_FullMethodName                  = "/api.TenantUser/CreateUser"
+	TenantUser_GetUser_FullMethodName                     = "/api.TenantUser/GetUser"
+	TenantUser_EnableUser_FullMethodName                  = "/api.TenantUser/EnableUser"
+	TenantUser_DisableUser_FullMethodName                 = "/api.TenantUser/DisableUser"
+	TenantUser_UpdateUser_FullMethodName                  = "/api.TenantUser/UpdateUser"
+	TenantUser_DeleteUser_FullMethodName                  = "/api.TenantUser/DeleteUser"
+	TenantUser_ListUserSessions_FullMethodName            = "/api.TenantUser/ListUserSessions"
+	TenantUser_LogoutUserSession_FullMethodName           = "/api.TenantUser/LogoutUserSession"
+	TenantUser_ListTenantOrgUnitsWithRoles_FullMethodName = "/api.TenantUser/ListTenantOrgUnitsWithRoles"
 )
 
 // TenantUserClient is the client API for TenantUser service.
@@ -57,6 +58,8 @@ type TenantUserClient interface {
 	ListUserSessions(ctx context.Context, in *TenantUserSessionsListReq, opts ...grpc.CallOption) (*TenantUserSessionsListResp, error)
 	// logout user from specific session or all sessions
 	LogoutUserSession(ctx context.Context, in *TenantUserSessionLogoutReq, opts ...grpc.CallOption) (*TenantUserSessionLogoutResp, error)
+	// List org units where a specific user has roles (ops admin cross-tenant access)
+	ListTenantOrgUnitsWithRoles(ctx context.Context, in *TenantOrgUnitsWithRolesListReq, opts ...grpc.CallOption) (*TenantOrgUnitsWithRolesListResp, error)
 }
 
 type tenantUserClient struct {
@@ -157,6 +160,16 @@ func (c *tenantUserClient) LogoutUserSession(ctx context.Context, in *TenantUser
 	return out, nil
 }
 
+func (c *tenantUserClient) ListTenantOrgUnitsWithRoles(ctx context.Context, in *TenantOrgUnitsWithRolesListReq, opts ...grpc.CallOption) (*TenantOrgUnitsWithRolesListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TenantOrgUnitsWithRolesListResp)
+	err := c.cc.Invoke(ctx, TenantUser_ListTenantOrgUnitsWithRoles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantUserServer is the server API for TenantUser service.
 // All implementations must embed UnimplementedTenantUserServer
 // for forward compatibility.
@@ -181,6 +194,8 @@ type TenantUserServer interface {
 	ListUserSessions(context.Context, *TenantUserSessionsListReq) (*TenantUserSessionsListResp, error)
 	// logout user from specific session or all sessions
 	LogoutUserSession(context.Context, *TenantUserSessionLogoutReq) (*TenantUserSessionLogoutResp, error)
+	// List org units where a specific user has roles (ops admin cross-tenant access)
+	ListTenantOrgUnitsWithRoles(context.Context, *TenantOrgUnitsWithRolesListReq) (*TenantOrgUnitsWithRolesListResp, error)
 	mustEmbedUnimplementedTenantUserServer()
 }
 
@@ -217,6 +232,9 @@ func (UnimplementedTenantUserServer) ListUserSessions(context.Context, *TenantUs
 }
 func (UnimplementedTenantUserServer) LogoutUserSession(context.Context, *TenantUserSessionLogoutReq) (*TenantUserSessionLogoutResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LogoutUserSession not implemented")
+}
+func (UnimplementedTenantUserServer) ListTenantOrgUnitsWithRoles(context.Context, *TenantOrgUnitsWithRolesListReq) (*TenantOrgUnitsWithRolesListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTenantOrgUnitsWithRoles not implemented")
 }
 func (UnimplementedTenantUserServer) mustEmbedUnimplementedTenantUserServer() {}
 func (UnimplementedTenantUserServer) testEmbeddedByValue()                    {}
@@ -401,6 +419,24 @@ func _TenantUser_LogoutUserSession_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantUser_ListTenantOrgUnitsWithRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TenantOrgUnitsWithRolesListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantUserServer).ListTenantOrgUnitsWithRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantUser_ListTenantOrgUnitsWithRoles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantUserServer).ListTenantOrgUnitsWithRoles(ctx, req.(*TenantOrgUnitsWithRolesListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TenantUser_ServiceDesc is the grpc.ServiceDesc for TenantUser service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -443,6 +479,10 @@ var TenantUser_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogoutUserSession",
 			Handler:    _TenantUser_LogoutUserSession_Handler,
+		},
+		{
+			MethodName: "ListTenantOrgUnitsWithRoles",
+			Handler:    _TenantUser_ListTenantOrgUnitsWithRoles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

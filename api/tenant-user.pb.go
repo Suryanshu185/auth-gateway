@@ -10,6 +10,7 @@
 package api
 
 import (
+	_ "github.com/go-core-stack/grpc-core/coreapis/api"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1352,11 +1353,312 @@ func (*TenantUserSessionLogoutResp) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{19}
 }
 
+// request for listing org units with user roles for a tenant
+type TenantOrgUnitsWithRolesListReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant id to get org units and roles for
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// username to get org units and roles for
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// offset from where to start
+	Offset int32 `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	// limit the number of entries in the response
+	Limit int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	// optional user filter - if provided, only show org units where this user has roles
+	UserId        string `protobuf:"bytes,5,opt,name=userId,proto3" json:"userId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) Reset() {
+	*x = TenantOrgUnitsWithRolesListReq{}
+	mi := &file_tenant_user_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantOrgUnitsWithRolesListReq) ProtoMessage() {}
+
+func (x *TenantOrgUnitsWithRolesListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantOrgUnitsWithRolesListReq.ProtoReflect.Descriptor instead.
+func (*TenantOrgUnitsWithRolesListReq) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *TenantOrgUnitsWithRolesListReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+// org unit entry with user roles
+type TenantOrgUnitWithRoles struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id
+	OrgUnitId string `protobuf:"bytes,1,opt,name=orgUnitId,proto3" json:"orgUnitId,omitempty"`
+	// org unit display name
+	OrgUnitName string `protobuf:"bytes,2,opt,name=orgUnitName,proto3" json:"orgUnitName,omitempty"`
+	// org unit description
+	OrgUnitDesc string `protobuf:"bytes,3,opt,name=orgUnitDesc,proto3" json:"orgUnitDesc,omitempty"`
+	// list of users and their roles in this org unit
+	UserRoles     []*UserRoleEntry `protobuf:"bytes,4,rep,name=userRoles,proto3" json:"userRoles,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantOrgUnitWithRoles) Reset() {
+	*x = TenantOrgUnitWithRoles{}
+	mi := &file_tenant_user_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantOrgUnitWithRoles) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantOrgUnitWithRoles) ProtoMessage() {}
+
+func (x *TenantOrgUnitWithRoles) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantOrgUnitWithRoles.ProtoReflect.Descriptor instead.
+func (*TenantOrgUnitWithRoles) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *TenantOrgUnitWithRoles) GetOrgUnitId() string {
+	if x != nil {
+		return x.OrgUnitId
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitWithRoles) GetOrgUnitName() string {
+	if x != nil {
+		return x.OrgUnitName
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitWithRoles) GetOrgUnitDesc() string {
+	if x != nil {
+		return x.OrgUnitDesc
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitWithRoles) GetUserRoles() []*UserRoleEntry {
+	if x != nil {
+		return x.UserRoles
+	}
+	return nil
+}
+
+// user role entry within an org unit
+type UserRoleEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// user id
+	UserId string `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	// username
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// user's first name
+	FirstName string `protobuf:"bytes,3,opt,name=firstName,proto3" json:"firstName,omitempty"`
+	// user's last name
+	LastName string `protobuf:"bytes,4,opt,name=lastName,proto3" json:"lastName,omitempty"`
+	// role assigned to the user in this org unit
+	RoleName string `protobuf:"bytes,5,opt,name=roleName,proto3" json:"roleName,omitempty"`
+	// role description
+	RoleDesc      string `protobuf:"bytes,6,opt,name=roleDesc,proto3" json:"roleDesc,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserRoleEntry) Reset() {
+	*x = UserRoleEntry{}
+	mi := &file_tenant_user_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserRoleEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserRoleEntry) ProtoMessage() {}
+
+func (x *UserRoleEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserRoleEntry.ProtoReflect.Descriptor instead.
+func (*UserRoleEntry) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *UserRoleEntry) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UserRoleEntry) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserRoleEntry) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *UserRoleEntry) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+func (x *UserRoleEntry) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *UserRoleEntry) GetRoleDesc() string {
+	if x != nil {
+		return x.RoleDesc
+	}
+	return ""
+}
+
+// response for listing org units with user roles
+type TenantOrgUnitsWithRolesListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// total count of org units
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// list of org units with their user roles
+	Items         []*TenantOrgUnitWithRoles `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantOrgUnitsWithRolesListResp) Reset() {
+	*x = TenantOrgUnitsWithRolesListResp{}
+	mi := &file_tenant_user_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantOrgUnitsWithRolesListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantOrgUnitsWithRolesListResp) ProtoMessage() {}
+
+func (x *TenantOrgUnitsWithRolesListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantOrgUnitsWithRolesListResp.ProtoReflect.Descriptor instead.
+func (*TenantOrgUnitsWithRolesListResp) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *TenantOrgUnitsWithRolesListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *TenantOrgUnitsWithRolesListResp) GetItems() []*TenantOrgUnitWithRoles {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_tenant_user_proto protoreflect.FileDescriptor
 
 const file_tenant_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11tenant-user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"r\n" +
+	"\x11tenant-user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"r\n" +
 	"\x12TenantUsersListReq\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
@@ -1447,7 +1749,29 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x03 \x01(\tR\tsessionId\"\x1d\n" +
-	"\x1bTenantUserSessionLogoutResp2\xed\b\n" +
+	"\x1bTenantUserSessionLogoutResp\"\x9a\x01\n" +
+	"\x1eTenantOrgUnitsWithRolesListReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06userId\x18\x05 \x01(\tR\x06userId\"\xac\x01\n" +
+	"\x16TenantOrgUnitWithRoles\x12\x1c\n" +
+	"\torgUnitId\x18\x01 \x01(\tR\torgUnitId\x12 \n" +
+	"\vorgUnitName\x18\x02 \x01(\tR\vorgUnitName\x12 \n" +
+	"\vorgUnitDesc\x18\x03 \x01(\tR\vorgUnitDesc\x120\n" +
+	"\tuserRoles\x18\x04 \x03(\v2\x12.api.UserRoleEntryR\tuserRoles\"\xb5\x01\n" +
+	"\rUserRoleEntry\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
+	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
+	"\blastName\x18\x04 \x01(\tR\blastName\x12\x1a\n" +
+	"\broleName\x18\x05 \x01(\tR\broleName\x12\x1a\n" +
+	"\broleDesc\x18\x06 \x01(\tR\broleDesc\"j\n" +
+	"\x1fTenantOrgUnitsWithRolesListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x121\n" +
+	"\x05items\x18\x02 \x03(\v2\x1b.api.TenantOrgUnitWithRolesR\x05items2\xb3\n" +
+	"\n" +
 	"\n" +
 	"TenantUser\x12i\n" +
 	"\bGetUsers\x12\x17.api.TenantUsersListReq\x1a\x18.api.TenantUsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/users\x12o\n" +
@@ -1462,7 +1786,9 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\n" +
 	"DeleteUser\x12\x18.api.TenantUserDeleteReq\x1a\x19.api.TenantUserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}\x12\x82\x01\n" +
 	"\x10ListUserSessions\x12\x1e.api.TenantUserSessionsListReq\x1a\x1f.api.TenantUserSessionsListResp\"-\x82\xd3\xe4\x93\x02'\x12%/api/auth/v1/tenant/{tenant}/sessions\x12\x96\x01\n" +
-	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x98\x01\x92Aj\x12%\n" +
+	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logout\x12\xc3\x01\n" +
+	"\x1bListTenantOrgUnitsWithRoles\x12#.api.TenantOrgUnitsWithRolesListReq\x1a$.api.TenantOrgUnitsWithRolesListResp\"Y\x8a\xb5\x18\x1d\n" +
+	"\x15tenant-org-unit-roles\x1a\x04list\x82\xd3\xe4\x93\x022\x120/api/auth/v1/tenant/{tenant}/user/{username}/ousB\x98\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
@@ -1478,55 +1804,63 @@ func file_tenant_user_proto_rawDescGZIP() []byte {
 	return file_tenant_user_proto_rawDescData
 }
 
-var file_tenant_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_tenant_user_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_tenant_user_proto_goTypes = []any{
-	(*TenantUsersListReq)(nil),          // 0: api.TenantUsersListReq
-	(*TenantUserListEntry)(nil),         // 1: api.TenantUserListEntry
-	(*TenantUsersListResp)(nil),         // 2: api.TenantUsersListResp
-	(*TenantUserCreateReq)(nil),         // 3: api.TenantUserCreateReq
-	(*TenantUserCreateResp)(nil),        // 4: api.TenantUserCreateResp
-	(*TenantUserDeleteReq)(nil),         // 5: api.TenantUserDeleteReq
-	(*TenantUserDeleteResp)(nil),        // 6: api.TenantUserDeleteResp
-	(*TenantUserGetReq)(nil),            // 7: api.TenantUserGetReq
-	(*TenantUserGetResp)(nil),           // 8: api.TenantUserGetResp
-	(*TenantUserUpdateReq)(nil),         // 9: api.TenantUserUpdateReq
-	(*TenantUserUpdateResp)(nil),        // 10: api.TenantUserUpdateResp
-	(*TenantUserEnableReq)(nil),         // 11: api.TenantUserEnableReq
-	(*TenantUserEnableResp)(nil),        // 12: api.TenantUserEnableResp
-	(*TenantUserDisableReq)(nil),        // 13: api.TenantUserDisableReq
-	(*TenantUserDisableResp)(nil),       // 14: api.TenantUserDisableResp
-	(*TenantUserSessionsListReq)(nil),   // 15: api.TenantUserSessionsListReq
-	(*TenantUserSessionInfo)(nil),       // 16: api.TenantUserSessionInfo
-	(*TenantUserSessionsListResp)(nil),  // 17: api.TenantUserSessionsListResp
-	(*TenantUserSessionLogoutReq)(nil),  // 18: api.TenantUserSessionLogoutReq
-	(*TenantUserSessionLogoutResp)(nil), // 19: api.TenantUserSessionLogoutResp
+	(*TenantUsersListReq)(nil),              // 0: api.TenantUsersListReq
+	(*TenantUserListEntry)(nil),             // 1: api.TenantUserListEntry
+	(*TenantUsersListResp)(nil),             // 2: api.TenantUsersListResp
+	(*TenantUserCreateReq)(nil),             // 3: api.TenantUserCreateReq
+	(*TenantUserCreateResp)(nil),            // 4: api.TenantUserCreateResp
+	(*TenantUserDeleteReq)(nil),             // 5: api.TenantUserDeleteReq
+	(*TenantUserDeleteResp)(nil),            // 6: api.TenantUserDeleteResp
+	(*TenantUserGetReq)(nil),                // 7: api.TenantUserGetReq
+	(*TenantUserGetResp)(nil),               // 8: api.TenantUserGetResp
+	(*TenantUserUpdateReq)(nil),             // 9: api.TenantUserUpdateReq
+	(*TenantUserUpdateResp)(nil),            // 10: api.TenantUserUpdateResp
+	(*TenantUserEnableReq)(nil),             // 11: api.TenantUserEnableReq
+	(*TenantUserEnableResp)(nil),            // 12: api.TenantUserEnableResp
+	(*TenantUserDisableReq)(nil),            // 13: api.TenantUserDisableReq
+	(*TenantUserDisableResp)(nil),           // 14: api.TenantUserDisableResp
+	(*TenantUserSessionsListReq)(nil),       // 15: api.TenantUserSessionsListReq
+	(*TenantUserSessionInfo)(nil),           // 16: api.TenantUserSessionInfo
+	(*TenantUserSessionsListResp)(nil),      // 17: api.TenantUserSessionsListResp
+	(*TenantUserSessionLogoutReq)(nil),      // 18: api.TenantUserSessionLogoutReq
+	(*TenantUserSessionLogoutResp)(nil),     // 19: api.TenantUserSessionLogoutResp
+	(*TenantOrgUnitsWithRolesListReq)(nil),  // 20: api.TenantOrgUnitsWithRolesListReq
+	(*TenantOrgUnitWithRoles)(nil),          // 21: api.TenantOrgUnitWithRoles
+	(*UserRoleEntry)(nil),                   // 22: api.UserRoleEntry
+	(*TenantOrgUnitsWithRolesListResp)(nil), // 23: api.TenantOrgUnitsWithRolesListResp
 }
 var file_tenant_user_proto_depIdxs = []int32{
 	1,  // 0: api.TenantUsersListResp.items:type_name -> api.TenantUserListEntry
 	16, // 1: api.TenantUserSessionsListResp.items:type_name -> api.TenantUserSessionInfo
-	0,  // 2: api.TenantUser.GetUsers:input_type -> api.TenantUsersListReq
-	3,  // 3: api.TenantUser.CreateUser:input_type -> api.TenantUserCreateReq
-	7,  // 4: api.TenantUser.GetUser:input_type -> api.TenantUserGetReq
-	11, // 5: api.TenantUser.EnableUser:input_type -> api.TenantUserEnableReq
-	13, // 6: api.TenantUser.DisableUser:input_type -> api.TenantUserDisableReq
-	9,  // 7: api.TenantUser.UpdateUser:input_type -> api.TenantUserUpdateReq
-	5,  // 8: api.TenantUser.DeleteUser:input_type -> api.TenantUserDeleteReq
-	15, // 9: api.TenantUser.ListUserSessions:input_type -> api.TenantUserSessionsListReq
-	18, // 10: api.TenantUser.LogoutUserSession:input_type -> api.TenantUserSessionLogoutReq
-	2,  // 11: api.TenantUser.GetUsers:output_type -> api.TenantUsersListResp
-	4,  // 12: api.TenantUser.CreateUser:output_type -> api.TenantUserCreateResp
-	8,  // 13: api.TenantUser.GetUser:output_type -> api.TenantUserGetResp
-	12, // 14: api.TenantUser.EnableUser:output_type -> api.TenantUserEnableResp
-	14, // 15: api.TenantUser.DisableUser:output_type -> api.TenantUserDisableResp
-	10, // 16: api.TenantUser.UpdateUser:output_type -> api.TenantUserUpdateResp
-	6,  // 17: api.TenantUser.DeleteUser:output_type -> api.TenantUserDeleteResp
-	17, // 18: api.TenantUser.ListUserSessions:output_type -> api.TenantUserSessionsListResp
-	19, // 19: api.TenantUser.LogoutUserSession:output_type -> api.TenantUserSessionLogoutResp
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	22, // 2: api.TenantOrgUnitWithRoles.userRoles:type_name -> api.UserRoleEntry
+	21, // 3: api.TenantOrgUnitsWithRolesListResp.items:type_name -> api.TenantOrgUnitWithRoles
+	0,  // 4: api.TenantUser.GetUsers:input_type -> api.TenantUsersListReq
+	3,  // 5: api.TenantUser.CreateUser:input_type -> api.TenantUserCreateReq
+	7,  // 6: api.TenantUser.GetUser:input_type -> api.TenantUserGetReq
+	11, // 7: api.TenantUser.EnableUser:input_type -> api.TenantUserEnableReq
+	13, // 8: api.TenantUser.DisableUser:input_type -> api.TenantUserDisableReq
+	9,  // 9: api.TenantUser.UpdateUser:input_type -> api.TenantUserUpdateReq
+	5,  // 10: api.TenantUser.DeleteUser:input_type -> api.TenantUserDeleteReq
+	15, // 11: api.TenantUser.ListUserSessions:input_type -> api.TenantUserSessionsListReq
+	18, // 12: api.TenantUser.LogoutUserSession:input_type -> api.TenantUserSessionLogoutReq
+	20, // 13: api.TenantUser.ListTenantOrgUnitsWithRoles:input_type -> api.TenantOrgUnitsWithRolesListReq
+	2,  // 14: api.TenantUser.GetUsers:output_type -> api.TenantUsersListResp
+	4,  // 15: api.TenantUser.CreateUser:output_type -> api.TenantUserCreateResp
+	8,  // 16: api.TenantUser.GetUser:output_type -> api.TenantUserGetResp
+	12, // 17: api.TenantUser.EnableUser:output_type -> api.TenantUserEnableResp
+	14, // 18: api.TenantUser.DisableUser:output_type -> api.TenantUserDisableResp
+	10, // 19: api.TenantUser.UpdateUser:output_type -> api.TenantUserUpdateResp
+	6,  // 20: api.TenantUser.DeleteUser:output_type -> api.TenantUserDeleteResp
+	17, // 21: api.TenantUser.ListUserSessions:output_type -> api.TenantUserSessionsListResp
+	19, // 22: api.TenantUser.LogoutUserSession:output_type -> api.TenantUserSessionLogoutResp
+	23, // 23: api.TenantUser.ListTenantOrgUnitsWithRoles:output_type -> api.TenantOrgUnitsWithRolesListResp
+	14, // [14:24] is the sub-list for method output_type
+	4,  // [4:14] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_tenant_user_proto_init() }
@@ -1540,7 +1874,7 @@ func file_tenant_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tenant_user_proto_rawDesc), len(file_tenant_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
