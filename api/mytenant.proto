@@ -34,6 +34,63 @@ service MyTenant {
       verb: "update"
     };
   }
+
+  // List supported identity provider types (like Keycloak providers endpoint)
+  rpc GetIdentityProviderTypes(IdpProvidersReq) returns (IdpProvidersResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/identity-provider/providers"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "list"
+    };
+  }
+
+  // Create identity provider instance (like Keycloak instances endpoint)
+  rpc CreateIdentityProviderInstance(IdpInstanceCreateReq) returns (IdpInstanceCreateResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/identity-provider/instances"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "create"
+    };
+  }
+
+  // Get identity provider instance configuration (like Keycloak instances endpoint)
+  rpc GetIdentityProviderInstance(IdpInstanceGetReq) returns (IdpInstanceGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/identity-provider/instances/{alias}"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "get"
+    };
+  }
+
+  // Update identity provider instance configuration (like Keycloak instances endpoint)
+  rpc UpdateIdentityProviderInstance(IdpInstanceUpdateReq) returns (IdpInstanceUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/identity-provider/instances/{alias}"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "update"
+    };
+  }
+
+  // Delete identity provider instance (like Keycloak instances endpoint)
+  rpc DeleteIdentityProviderInstance(IdpInstanceDeleteReq) returns (IdpInstanceDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/mytenant/v1/identity-provider/instances/{alias}"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "delete"
+    };
+  }
 }
 
 // password policy get request
@@ -102,4 +159,152 @@ message MyPasswordPolicyUpdateReq {
 
 // password policy update response
 message MyPasswordPolicyUpdateResp {
+}
+
+// Identity Provider types
+enum IdpProviderType {
+  IDP_PROVIDER_UNSPECIFIED = 0;
+  IDP_PROVIDER_GOOGLE = 1;
+  IDP_PROVIDER_MICROSOFT = 2;
+  IDP_PROVIDER_OIDC = 3;
+  IDP_PROVIDER_SAML = 4;
+}
+
+// Configuration field metadata for validation
+message IdpConfigField {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  bool sensitive = 4;
+  string description = 5;
+  string default_value = 6;
+  string validation = 7;
+}
+
+// Provider metadata
+message IdpProviderMetadata {
+  IdpProviderType provider_type = 1;
+  string display_name = 2;
+  string description = 3;
+  repeated IdpConfigField config_fields = 4;
+  repeated string supported_scopes = 5;
+  repeated string default_scopes = 6;
+  string documentation = 7;
+}
+
+// Identity provider providers request (list supported provider types)
+message IdpProvidersReq {
+  // Optional filter by provider type
+  optional IdpProviderType providerType = 1;
+}
+
+// Identity provider providers response
+message IdpProvidersResp {
+  // Available provider types and their metadata
+  repeated IdpProviderMetadata providers = 1;
+}
+
+// Identity provider instance create request
+message IdpInstanceCreateReq {
+  // Identity provider alias (unique per tenant)
+  string alias = 1;
+
+  // Display name
+  string display_name = 2;
+
+  // Provider type
+  IdpProviderType provider_type = 3;
+
+  // Whether configuration is enabled
+  bool enabled = 4;
+
+  // Display order for UI
+  int32 display_order = 5;
+
+  // Provider configuration (including sensitive fields)
+  string configuration = 6;
+}
+
+// Identity provider instance create response
+message IdpInstanceCreateResp {
+  // Created identity provider alias
+  string alias = 1;
+
+  // Success message
+  string message = 2;
+}
+
+// Identity provider instance get request
+message IdpInstanceGetReq {
+  // Identity provider alias
+  string alias = 1;
+}
+
+// Identity provider instance get response
+message IdpInstanceGetResp {
+  // Identity provider alias
+  string alias = 1;
+
+  // Display name
+  string display_name = 2;
+
+  // Provider type
+  IdpProviderType provider_type = 3;
+
+  // Whether configuration is enabled
+  bool enabled = 4;
+
+  // Display order for UI
+  int32 display_order = 5;
+
+  // Provider configuration (non-sensitive fields only)
+  string configuration = 6;
+
+  // Created timestamp
+  int64 created = 7;
+
+  // Updated timestamp
+  int64 updated = 8;
+
+  // Created by user
+  string created_by = 9;
+
+  // Updated by user
+  string updated_by = 10;
+}
+
+// Identity provider instance update request
+message IdpInstanceUpdateReq {
+  // Identity provider alias
+  string alias = 1;
+
+  // Display name
+  string display_name = 2;
+
+  // Whether configuration is enabled
+  bool enabled = 3;
+
+  // Display order for UI
+  int32 display_order = 4;
+
+  // Provider configuration (including sensitive fields)
+  string configuration = 5;
+}
+
+// Identity provider instance update response
+message IdpInstanceUpdateResp {
+  // Success message
+  string message = 1;
+}
+
+// Identity provider instance delete request
+message IdpInstanceDeleteReq {
+  // Identity provider alias
+  string alias = 1;
+}
+
+// Identity provider instance delete response
+message IdpInstanceDeleteResp {
+  // Success message
+  string message = 1;
 }

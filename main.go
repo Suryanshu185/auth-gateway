@@ -360,6 +360,12 @@ func main() {
 		log.Panicf("failed to locate email verification table: %s", err)
 	}
 
+	// locate SSO config table
+	_, err = table.LocateIdentityProviderTable(client)
+	if err != nil {
+		log.Panicf("failed to locate Identity Provider table: %s", err)
+	}
+
 	// locate Org Unit table
 	ouTable, err := table.LocateOrgUnitTable(client)
 	if err != nil {

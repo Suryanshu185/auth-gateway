@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	auth "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
@@ -77,6 +78,29 @@ func (s *TenantServer) ListTenants(ctx context.Context, req *api.TenantsListReq)
 	}
 
 	return resp, nil
+}
+
+// Helper function to validate tenant admin permissions
+func (s *TenantServer) validateTenantAdmin(ctx context.Context) (*auth.AuthInfo, error) {
+	authInfo, err := auth.GetAuthInfoFromContext(ctx)
+	if err != nil || authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	// Check if user has admin role (tenant admin)
+	isAdmin := false
+	for _, role := range authInfo.Roles {
+		if role == "admin" {
+			isAdmin = true
+			break
+		}
+	}
+
+	if !isAdmin {
+		return nil, status.Errorf(codes.PermissionDenied, "Access denied: tenant admin role required")
+	}
+
+	return authInfo, nil
 }
 
 func NewTenantServer(ctx *model.GrpcServerContext, ep string) *TenantServer {

@@ -1365,6 +1365,179 @@
         ]
       }
     },
+    "/api/mytenant/v1/identity-provider/instances": {
+      "post": {
+        "summary": "Create identity provider instance (like Keycloak instances endpoint)",
+        "operationId": "MyTenant_CreateIdentityProviderInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiIdpInstanceCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiIdpInstanceCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
+    "/api/mytenant/v1/identity-provider/instances/{alias}": {
+      "get": {
+        "summary": "Get identity provider instance configuration (like Keycloak instances endpoint)",
+        "operationId": "MyTenant_GetIdentityProviderInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiIdpInstanceGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "alias",
+            "description": "Identity provider alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      },
+      "delete": {
+        "summary": "Delete identity provider instance (like Keycloak instances endpoint)",
+        "operationId": "MyTenant_DeleteIdentityProviderInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiIdpInstanceDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "alias",
+            "description": "Identity provider alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      },
+      "put": {
+        "summary": "Update identity provider instance configuration (like Keycloak instances endpoint)",
+        "operationId": "MyTenant_UpdateIdentityProviderInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiIdpInstanceUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "alias",
+            "description": "Identity provider alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MyTenantUpdateIdentityProviderInstanceBody"
+            }
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
+    "/api/mytenant/v1/identity-provider/providers": {
+      "get": {
+        "summary": "List supported identity provider types (like Keycloak providers endpoint)",
+        "operationId": "MyTenant_GetIdentityProviderTypes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiIdpProvidersResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "providerType",
+            "description": "Optional filter by provider type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "IDP_PROVIDER_UNSPECIFIED",
+              "IDP_PROVIDER_GOOGLE",
+              "IDP_PROVIDER_MICROSOFT",
+              "IDP_PROVIDER_OIDC",
+              "IDP_PROVIDER_SAML"
+            ],
+            "default": "IDP_PROVIDER_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
     "/api/mytenant/v1/ou": {
       "post": {
         "summary": "Create new org unit for my tenant",
@@ -2052,6 +2225,29 @@
       },
       "title": "request for update of an existing customer"
     },
+    "MyTenantUpdateIdentityProviderInstanceBody": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "title": "Display name"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "Whether configuration is enabled"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Display order for UI"
+        },
+        "configuration": {
+          "type": "string",
+          "title": "Provider configuration (including sensitive fields)"
+        }
+      },
+      "title": "Identity provider instance update request"
+    },
     "OrgUnitUpdateOrgUnitBody": {
       "type": "object",
       "properties": {
@@ -2309,6 +2505,210 @@
     },
     "apiDefaultOrgUnitResp": {
       "type": "object"
+    },
+    "apiIdpConfigField": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "sensitive": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "string"
+        }
+      },
+      "title": "Configuration field metadata for validation"
+    },
+    "apiIdpInstanceCreateReq": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string",
+          "title": "Identity provider alias (unique per tenant)"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "Display name"
+        },
+        "providerType": {
+          "$ref": "#/definitions/apiIdpProviderType",
+          "title": "Provider type"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "Whether configuration is enabled"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Display order for UI"
+        },
+        "configuration": {
+          "type": "string",
+          "title": "Provider configuration (including sensitive fields)"
+        }
+      },
+      "title": "Identity provider instance create request"
+    },
+    "apiIdpInstanceCreateResp": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string",
+          "title": "Created identity provider alias"
+        },
+        "message": {
+          "type": "string",
+          "title": "Success message"
+        }
+      },
+      "title": "Identity provider instance create response"
+    },
+    "apiIdpInstanceDeleteResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Success message"
+        }
+      },
+      "title": "Identity provider instance delete response"
+    },
+    "apiIdpInstanceGetResp": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string",
+          "title": "Identity provider alias"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "Display name"
+        },
+        "providerType": {
+          "$ref": "#/definitions/apiIdpProviderType",
+          "title": "Provider type"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "Whether configuration is enabled"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Display order for UI"
+        },
+        "configuration": {
+          "type": "string",
+          "title": "Provider configuration (non-sensitive fields only)"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "Created timestamp"
+        },
+        "updated": {
+          "type": "string",
+          "format": "int64",
+          "title": "Updated timestamp"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "Created by user"
+        },
+        "updatedBy": {
+          "type": "string",
+          "title": "Updated by user"
+        }
+      },
+      "title": "Identity provider instance get response"
+    },
+    "apiIdpInstanceUpdateResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Success message"
+        }
+      },
+      "title": "Identity provider instance update response"
+    },
+    "apiIdpProviderMetadata": {
+      "type": "object",
+      "properties": {
+        "providerType": {
+          "$ref": "#/definitions/apiIdpProviderType"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "configFields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiIdpConfigField"
+          }
+        },
+        "supportedScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defaultScopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "documentation": {
+          "type": "string"
+        }
+      },
+      "title": "Provider metadata"
+    },
+    "apiIdpProviderType": {
+      "type": "string",
+      "enum": [
+        "IDP_PROVIDER_UNSPECIFIED",
+        "IDP_PROVIDER_GOOGLE",
+        "IDP_PROVIDER_MICROSOFT",
+        "IDP_PROVIDER_OIDC",
+        "IDP_PROVIDER_SAML"
+      ],
+      "default": "IDP_PROVIDER_UNSPECIFIED",
+      "title": "Identity Provider types"
+    },
+    "apiIdpProvidersResp": {
+      "type": "object",
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiIdpProviderMetadata"
+          },
+          "title": "Available provider types and their metadata"
+        }
+      },
+      "title": "Identity provider providers response"
     },
     "apiMyAzsListEntry": {
       "type": "object",

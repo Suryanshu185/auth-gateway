@@ -26,4 +26,7 @@ const (
 
 	// Org Unit User collection name
 	OrgUnitUserCollectionName = "org-unit-users"
+
+	// Identity Provider collection name
+	IdentityProviderCollectionName = "identity-providers"
 )

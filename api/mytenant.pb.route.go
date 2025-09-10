@@ -21,4 +21,34 @@ func init() {
 	route.Resource = "password-policy"
 	route.Verb = "update"
 	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetIdentityProviderTypes RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/providers", "GET")
+	route.Resource = "tenant-idp"
+	route.Verb = "list"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for CreateIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/instances", "POST")
+	route.Resource = "tenant-idp"
+	route.Verb = "create"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/instances/{alias}", "GET")
+	route.Resource = "tenant-idp"
+	route.Verb = "get"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for UpdateIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/instances/{alias}", "PUT")
+	route.Resource = "tenant-idp"
+	route.Verb = "update"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for DeleteIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/instances/{alias}", "DELETE")
+	route.Resource = "tenant-idp"
+	route.Verb = "delete"
+	RoutesMyTenant = append(RoutesMyTenant, route)
 }
