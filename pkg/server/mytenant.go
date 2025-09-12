@@ -15,6 +15,7 @@ import (
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 	auth "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/auth/route"
 	"google.golang.org/grpc/codes"
@@ -23,7 +24,8 @@ import (
 
 type MyTenantServer struct {
 	api.UnimplementedMyTenantServer
-	client *keycloak.Client
+	client    *keycloak.Client
+	tenantTbl *table.TenantTable
 }
 
 func (s *MyTenantServer) GetMyPasswordPolicy(ctx context.Context, req *api.MyPasswordPolicyGetReq) (*api.MyPasswordPolicyGetResp, error) {
@@ -151,12 +153,102 @@ func (s *MyTenantServer) UpdateMyPasswordPolicy(ctx context.Context, req *api.My
 	return &api.MyPasswordPolicyUpdateResp{}, nil
 }
 
+func (s *MyTenantServer) GetKeycloakSessionLimitsInstructions(ctx context.Context, req *api.GetKeycloakSessionLimitsInstructionsReq) (*api.GetKeycloakSessionLimitsInstructionsResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	// Get admin token and query current session limits configuration from Keycloak
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get Keycloak access token: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Get current session limits configuration from Keycloak
+	sessionConfig, err := s.client.GetCurrentSessionLimitsConfig(ctx, token, authInfo.Realm)
+	if err != nil {
+		log.Printf("failed to get current session limits config for realm %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.NotFound, "No session limits configured for realm %s", authInfo.Realm)
+	}
+
+	// Convert to API format
+	config := &api.KeycloakSessionLimitsConfig{
+		MaxConcurrentSessions: int32(sessionConfig.MaxConcurrentSessions),
+	}
+
+	switch sessionConfig.BehaviorWhenLimitExceeded {
+	case "terminate":
+		config.BehaviorWhenLimitExceeded = api.SessionLimitBehavior_TERMINATE
+	default:
+		config.BehaviorWhenLimitExceeded = api.SessionLimitBehavior_DENY
+	}
+
+	return &api.GetKeycloakSessionLimitsInstructionsResp{
+		Config: config,
+		Realm:  authInfo.Realm,
+	}, nil
+}
+
+func (s *MyTenantServer) ConfigureKeycloakSessionLimits(ctx context.Context, req *api.ConfigureKeycloakSessionLimitsReq) (*api.ConfigureKeycloakSessionLimitsResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	if req.Config == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "session limits config is required")
+	}
+
+	// Validate input parameters
+	if req.Config.MaxConcurrentSessions <= 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "max concurrent sessions must be > 0")
+	}
+
+	// Convert API config to Keycloak config
+	config := keycloak.SessionLimitConfig{
+		MaxConcurrentSessions: int(req.Config.MaxConcurrentSessions),
+	}
+
+	switch req.Config.BehaviorWhenLimitExceeded {
+	case api.SessionLimitBehavior_TERMINATE:
+		config.BehaviorWhenLimitExceeded = "terminate"
+	default:
+		config.BehaviorWhenLimitExceeded = "deny"
+	}
+
+	// Get admin token and configure session limits
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get Keycloak access token: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	err = s.client.ConfigureSessionLimitsInRealm(ctx, token, authInfo.Realm, config)
+	if err != nil {
+		log.Printf("failed to configure session limits for realm %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Failed to configure session limits: %s", err.Error())
+	}
+
+	return &api.ConfigureKeycloakSessionLimitsResp{
+		Message:      fmt.Sprintf("Session limits successfully configured for realm %s. The 'browser-with-session-limits' authentication flow has been created and set as the realm's Browser flow with %d max sessions and '%s' behavior.", authInfo.Realm, config.MaxConcurrentSessions, config.BehaviorWhenLimitExceeded),
+		Instructions: fmt.Sprintf("Session limits are now active for realm '%s'. Users will be limited to %d concurrent sessions with '%s' behavior when the limit is exceeded.", authInfo.Realm, config.MaxConcurrentSessions, config.BehaviorWhenLimitExceeded),
+	}, nil
+}
+
 func NewMyTenantServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyTenantServer {
+	tenantTbl, err := table.GetTenantTable()
+	if err != nil {
+		log.Panicf("failed to get tenant table: %s", err)
+	}
+
 	srv := &MyTenantServer{
-		client: client,
+		client:    client,
+		tenantTbl: tenantTbl,
 	}
 	api.RegisterMyTenantServer(ctx.Server, srv)
-	err := api.RegisterMyTenantHandler(context.Background(), ctx.Mux, ctx.Conn)
+	err = api.RegisterMyTenantHandler(context.Background(), ctx.Mux, ctx.Conn)
 	if err != nil {
 		log.Panicf("failed to register handler: %s", err)
 	}

@@ -21,4 +21,16 @@ func init() {
 	route.Resource = "password-policy"
 	route.Verb = "update"
 	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetKeycloakSessionLimitsInstructions RPC
+	route = model.NewRoute("/api/mytenant/v1/keycloak-session-limits", "GET")
+	route.Resource = "session-limits"
+	route.Verb = "get"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for ConfigureKeycloakSessionLimits RPC
+	route = model.NewRoute("/api/mytenant/v1/keycloak-session-limits", "PUT")
+	route.Resource = "session-limits"
+	route.Verb = "update"
+	RoutesMyTenant = append(RoutesMyTenant, route)
 }

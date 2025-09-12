@@ -1365,6 +1365,82 @@
         ]
       }
     },
+    "/api/mytenant/v1/keycloak-session-limits": {
+      "get": {
+        "summary": "Get Keycloak session limits configuration instructions",
+        "operationId": "MyTenant_GetKeycloakSessionLimitsInstructions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetKeycloakSessionLimitsInstructionsResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "config.maxConcurrentSessions",
+            "description": "maximum number of concurrent sessions per user",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "config.behaviorWhenLimitExceeded",
+            "description": "behavior when limit is exceeded\n\n - DENY: deny new session (reject login)\n - TERMINATE: terminate oldest session to allow new login",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DENY",
+              "TERMINATE"
+            ],
+            "default": "DENY"
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      },
+      "put": {
+        "summary": "Configure session limits in Keycloak realm (preparation step)",
+        "operationId": "MyTenant_ConfigureKeycloakSessionLimits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiConfigureKeycloakSessionLimitsResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiConfigureKeycloakSessionLimitsReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
     "/api/mytenant/v1/ou": {
       "post": {
         "summary": "Create new org unit for my tenant",
@@ -2203,6 +2279,30 @@
         }
       }
     },
+    "apiConfigureKeycloakSessionLimitsReq": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/apiKeycloakSessionLimitsConfig",
+          "title": "session limits configuration"
+        }
+      },
+      "title": "configure Keycloak session limits request"
+    },
+    "apiConfigureKeycloakSessionLimitsResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "success message"
+        },
+        "instructions": {
+          "type": "string",
+          "title": "manual configuration instructions"
+        }
+      },
+      "title": "configure Keycloak session limits response"
+    },
     "apiCustomerAddReq": {
       "type": "object",
       "properties": {
@@ -2309,6 +2409,35 @@
     },
     "apiDefaultOrgUnitResp": {
       "type": "object"
+    },
+    "apiGetKeycloakSessionLimitsInstructionsResp": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/apiKeycloakSessionLimitsConfig",
+          "title": "current session limits configuration"
+        },
+        "realm": {
+          "type": "string",
+          "title": "current realm name"
+        }
+      },
+      "title": "get Keycloak session limits instructions response"
+    },
+    "apiKeycloakSessionLimitsConfig": {
+      "type": "object",
+      "properties": {
+        "maxConcurrentSessions": {
+          "type": "integer",
+          "format": "int32",
+          "title": "maximum number of concurrent sessions per user"
+        },
+        "behaviorWhenLimitExceeded": {
+          "$ref": "#/definitions/apiSessionLimitBehavior",
+          "title": "behavior when limit is exceeded"
+        }
+      },
+      "title": "Keycloak session limits configuration"
     },
     "apiMyAzsListEntry": {
       "type": "object",
@@ -2805,6 +2934,16 @@
         }
       },
       "title": "resource get response"
+    },
+    "apiSessionLimitBehavior": {
+      "type": "string",
+      "enum": [
+        "DENY",
+        "TERMINATE"
+      ],
+      "default": "DENY",
+      "description": "- DENY: deny new session (reject login)\n - TERMINATE: terminate oldest session to allow new login",
+      "title": "behavior when session limit is exceeded"
     },
     "apiTenantAdminCreateConfig": {
       "type": "object",

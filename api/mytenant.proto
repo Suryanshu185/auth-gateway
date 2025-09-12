@@ -34,6 +34,29 @@ service MyTenant {
       verb: "update"
     };
   }
+
+  // Get Keycloak session limits configuration instructions
+  rpc GetKeycloakSessionLimitsInstructions(GetKeycloakSessionLimitsInstructionsReq) returns (GetKeycloakSessionLimitsInstructionsResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/keycloak-session-limits"
+    };
+    option (api.role) = {
+      resource: "session-limits"
+      verb: "get"
+    };
+  }
+
+  // Configure session limits in Keycloak realm (preparation step)
+  rpc ConfigureKeycloakSessionLimits(ConfigureKeycloakSessionLimitsReq) returns (ConfigureKeycloakSessionLimitsResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/keycloak-session-limits"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "session-limits"
+      verb: "update"
+    };
+  }
 }
 
 // password policy get request
@@ -102,4 +125,51 @@ message MyPasswordPolicyUpdateReq {
 
 // password policy update response
 message MyPasswordPolicyUpdateResp {
+}
+
+// behavior when session limit is exceeded
+enum SessionLimitBehavior {
+  // deny new session (reject login)
+  DENY = 0;
+  // terminate oldest session to allow new login
+  TERMINATE = 1;
+}
+
+// Keycloak session limits configuration
+message KeycloakSessionLimitsConfig {
+  // maximum number of concurrent sessions per user
+  int32 max_concurrent_sessions = 1;
+  
+  // behavior when limit is exceeded
+  SessionLimitBehavior behavior_when_limit_exceeded = 2;
+}
+
+// get Keycloak session limits instructions request
+message GetKeycloakSessionLimitsInstructionsReq {
+  // optional configuration to generate specific instructions
+  KeycloakSessionLimitsConfig config = 1;
+}
+
+// get Keycloak session limits instructions response
+message GetKeycloakSessionLimitsInstructionsResp {
+  // current session limits configuration
+  KeycloakSessionLimitsConfig config = 1;
+  
+  // current realm name
+  string realm = 2;
+}
+
+// configure Keycloak session limits request
+message ConfigureKeycloakSessionLimitsReq {
+  // session limits configuration
+  KeycloakSessionLimitsConfig config = 1;
+}
+
+// configure Keycloak session limits response
+message ConfigureKeycloakSessionLimitsResp {
+  // success message
+  string message = 1;
+  
+  // manual configuration instructions
+  string instructions = 2;
 }

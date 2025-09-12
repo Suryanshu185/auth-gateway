@@ -22,8 +22,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MyTenant_GetMyPasswordPolicy_FullMethodName    = "/api.MyTenant/GetMyPasswordPolicy"
-	MyTenant_UpdateMyPasswordPolicy_FullMethodName = "/api.MyTenant/UpdateMyPasswordPolicy"
+	MyTenant_GetMyPasswordPolicy_FullMethodName                  = "/api.MyTenant/GetMyPasswordPolicy"
+	MyTenant_UpdateMyPasswordPolicy_FullMethodName               = "/api.MyTenant/UpdateMyPasswordPolicy"
+	MyTenant_GetKeycloakSessionLimitsInstructions_FullMethodName = "/api.MyTenant/GetKeycloakSessionLimitsInstructions"
+	MyTenant_ConfigureKeycloakSessionLimits_FullMethodName       = "/api.MyTenant/ConfigureKeycloakSessionLimits"
 )
 
 // MyTenantClient is the client API for MyTenant service.
@@ -36,6 +38,10 @@ type MyTenantClient interface {
 	GetMyPasswordPolicy(ctx context.Context, in *MyPasswordPolicyGetReq, opts ...grpc.CallOption) (*MyPasswordPolicyGetResp, error)
 	// Update Password policy configuration
 	UpdateMyPasswordPolicy(ctx context.Context, in *MyPasswordPolicyUpdateReq, opts ...grpc.CallOption) (*MyPasswordPolicyUpdateResp, error)
+	// Get Keycloak session limits configuration instructions
+	GetKeycloakSessionLimitsInstructions(ctx context.Context, in *GetKeycloakSessionLimitsInstructionsReq, opts ...grpc.CallOption) (*GetKeycloakSessionLimitsInstructionsResp, error)
+	// Configure session limits in Keycloak realm (preparation step)
+	ConfigureKeycloakSessionLimits(ctx context.Context, in *ConfigureKeycloakSessionLimitsReq, opts ...grpc.CallOption) (*ConfigureKeycloakSessionLimitsResp, error)
 }
 
 type myTenantClient struct {
@@ -66,6 +72,26 @@ func (c *myTenantClient) UpdateMyPasswordPolicy(ctx context.Context, in *MyPassw
 	return out, nil
 }
 
+func (c *myTenantClient) GetKeycloakSessionLimitsInstructions(ctx context.Context, in *GetKeycloakSessionLimitsInstructionsReq, opts ...grpc.CallOption) (*GetKeycloakSessionLimitsInstructionsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetKeycloakSessionLimitsInstructionsResp)
+	err := c.cc.Invoke(ctx, MyTenant_GetKeycloakSessionLimitsInstructions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) ConfigureKeycloakSessionLimits(ctx context.Context, in *ConfigureKeycloakSessionLimitsReq, opts ...grpc.CallOption) (*ConfigureKeycloakSessionLimitsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigureKeycloakSessionLimitsResp)
+	err := c.cc.Invoke(ctx, MyTenant_ConfigureKeycloakSessionLimits_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyTenantServer is the server API for MyTenant service.
 // All implementations must embed UnimplementedMyTenantServer
 // for forward compatibility.
@@ -76,6 +102,10 @@ type MyTenantServer interface {
 	GetMyPasswordPolicy(context.Context, *MyPasswordPolicyGetReq) (*MyPasswordPolicyGetResp, error)
 	// Update Password policy configuration
 	UpdateMyPasswordPolicy(context.Context, *MyPasswordPolicyUpdateReq) (*MyPasswordPolicyUpdateResp, error)
+	// Get Keycloak session limits configuration instructions
+	GetKeycloakSessionLimitsInstructions(context.Context, *GetKeycloakSessionLimitsInstructionsReq) (*GetKeycloakSessionLimitsInstructionsResp, error)
+	// Configure session limits in Keycloak realm (preparation step)
+	ConfigureKeycloakSessionLimits(context.Context, *ConfigureKeycloakSessionLimitsReq) (*ConfigureKeycloakSessionLimitsResp, error)
 	mustEmbedUnimplementedMyTenantServer()
 }
 
@@ -91,6 +121,12 @@ func (UnimplementedMyTenantServer) GetMyPasswordPolicy(context.Context, *MyPassw
 }
 func (UnimplementedMyTenantServer) UpdateMyPasswordPolicy(context.Context, *MyPasswordPolicyUpdateReq) (*MyPasswordPolicyUpdateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMyPasswordPolicy not implemented")
+}
+func (UnimplementedMyTenantServer) GetKeycloakSessionLimitsInstructions(context.Context, *GetKeycloakSessionLimitsInstructionsReq) (*GetKeycloakSessionLimitsInstructionsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetKeycloakSessionLimitsInstructions not implemented")
+}
+func (UnimplementedMyTenantServer) ConfigureKeycloakSessionLimits(context.Context, *ConfigureKeycloakSessionLimitsReq) (*ConfigureKeycloakSessionLimitsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfigureKeycloakSessionLimits not implemented")
 }
 func (UnimplementedMyTenantServer) mustEmbedUnimplementedMyTenantServer() {}
 func (UnimplementedMyTenantServer) testEmbeddedByValue()                  {}
@@ -149,6 +185,42 @@ func _MyTenant_UpdateMyPasswordPolicy_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyTenant_GetKeycloakSessionLimitsInstructions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetKeycloakSessionLimitsInstructionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).GetKeycloakSessionLimitsInstructions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_GetKeycloakSessionLimitsInstructions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).GetKeycloakSessionLimitsInstructions(ctx, req.(*GetKeycloakSessionLimitsInstructionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_ConfigureKeycloakSessionLimits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigureKeycloakSessionLimitsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).ConfigureKeycloakSessionLimits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_ConfigureKeycloakSessionLimits_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).ConfigureKeycloakSessionLimits(ctx, req.(*ConfigureKeycloakSessionLimitsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyTenant_ServiceDesc is the grpc.ServiceDesc for MyTenant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,6 +235,14 @@ var MyTenant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMyPasswordPolicy",
 			Handler:    _MyTenant_UpdateMyPasswordPolicy_Handler,
+		},
+		{
+			MethodName: "GetKeycloakSessionLimitsInstructions",
+			Handler:    _MyTenant_GetKeycloakSessionLimitsInstructions_Handler,
+		},
+		{
+			MethodName: "ConfigureKeycloakSessionLimits",
+			Handler:    _MyTenant_ConfigureKeycloakSessionLimits_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

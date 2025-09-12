@@ -30,6 +30,7 @@ import (
 	"github.com/go-core-stack/core/utils"
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
+	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
@@ -44,14 +45,16 @@ var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
-	validator hash.Validator
-	apiKeys   *table.ApiKeyTable
-	userTbl   *table.UserTable
-	routes    *route.RouteTable
-	ouTbl     *table.OrgUnitTable
-	ouUserTbl *table.OrgUnitUserTable
-	proxyV1   *httputil.ReverseProxy
-	proxyV2   *httputil.ReverseProxy
+	validator      hash.Validator
+	apiKeys        *table.ApiKeyTable
+	userTbl        *table.UserTable
+	routes         *route.RouteTable
+	ouTbl          *table.OrgUnitTable
+	ouUserTbl      *table.OrgUnitUserTable
+	tenantTbl      *table.TenantTable
+	keycloakClient *keycloak.Client
+	proxyV1        *httputil.ReverseProxy
+	proxyV2        *httputil.ReverseProxy
 }
 
 type gatewayReconciler struct {
@@ -466,6 +469,24 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit user table: %s", err)
 	}
 
+	tenantTbl, err := table.GetTenantTable()
+	if err != nil {
+		log.Panicf("unable to get tenant table: %s", err)
+	}
+
+	// For session enforcement, we need an admin Keycloak client
+	// We'll use the same endpoint configuration as main.go
+	keycloakBaseURL := os.Getenv("KEYCLOAK_BASE_URL")
+	if keycloakBaseURL == "" {
+		keycloakBaseURL = "http://localhost:8080" // fallback
+	}
+
+	keycloakClient, err := keycloak.New(keycloakBaseURL)
+	if err != nil {
+		log.Printf("failed to create Keycloak admin client for session enforcement: %s", err)
+		keycloakClient = nil // Continue without session enforcement
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -481,12 +502,14 @@ func New() http.Handler {
 	}
 
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:   apiKeys,
-		userTbl:   userTbl,
-		routes:    routes,
-		ouTbl:     ouTbl,
-		ouUserTbl: ouUserTbl,
+		validator:      hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:        apiKeys,
+		userTbl:        userTbl,
+		routes:         routes,
+		ouTbl:          ouTbl,
+		ouUserTbl:      ouUserTbl,
+		tenantTbl:      tenantTbl,
+		keycloakClient: keycloakClient,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,

@@ -26,6 +26,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// behavior when session limit is exceeded
+type SessionLimitBehavior int32
+
+const (
+	// deny new session (reject login)
+	SessionLimitBehavior_DENY SessionLimitBehavior = 0
+	// terminate oldest session to allow new login
+	SessionLimitBehavior_TERMINATE SessionLimitBehavior = 1
+)
+
+// Enum value maps for SessionLimitBehavior.
+var (
+	SessionLimitBehavior_name = map[int32]string{
+		0: "DENY",
+		1: "TERMINATE",
+	}
+	SessionLimitBehavior_value = map[string]int32{
+		"DENY":      0,
+		"TERMINATE": 1,
+	}
+)
+
+func (x SessionLimitBehavior) Enum() *SessionLimitBehavior {
+	p := new(SessionLimitBehavior)
+	*p = x
+	return p
+}
+
+func (x SessionLimitBehavior) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SessionLimitBehavior) Descriptor() protoreflect.EnumDescriptor {
+	return file_mytenant_proto_enumTypes[0].Descriptor()
+}
+
+func (SessionLimitBehavior) Type() protoreflect.EnumType {
+	return &file_mytenant_proto_enumTypes[0]
+}
+
+func (x SessionLimitBehavior) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SessionLimitBehavior.Descriptor instead.
+func (SessionLimitBehavior) EnumDescriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{0}
+}
+
 // password policy get request
 type MyPasswordPolicyGetReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -336,6 +385,263 @@ func (*MyPasswordPolicyUpdateResp) Descriptor() ([]byte, []int) {
 	return file_mytenant_proto_rawDescGZIP(), []int{3}
 }
 
+// Keycloak session limits configuration
+type KeycloakSessionLimitsConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// maximum number of concurrent sessions per user
+	MaxConcurrentSessions int32 `protobuf:"varint,1,opt,name=max_concurrent_sessions,json=maxConcurrentSessions,proto3" json:"max_concurrent_sessions,omitempty"`
+	// behavior when limit is exceeded
+	BehaviorWhenLimitExceeded SessionLimitBehavior `protobuf:"varint,2,opt,name=behavior_when_limit_exceeded,json=behaviorWhenLimitExceeded,proto3,enum=api.SessionLimitBehavior" json:"behavior_when_limit_exceeded,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *KeycloakSessionLimitsConfig) Reset() {
+	*x = KeycloakSessionLimitsConfig{}
+	mi := &file_mytenant_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KeycloakSessionLimitsConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KeycloakSessionLimitsConfig) ProtoMessage() {}
+
+func (x *KeycloakSessionLimitsConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KeycloakSessionLimitsConfig.ProtoReflect.Descriptor instead.
+func (*KeycloakSessionLimitsConfig) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *KeycloakSessionLimitsConfig) GetMaxConcurrentSessions() int32 {
+	if x != nil {
+		return x.MaxConcurrentSessions
+	}
+	return 0
+}
+
+func (x *KeycloakSessionLimitsConfig) GetBehaviorWhenLimitExceeded() SessionLimitBehavior {
+	if x != nil {
+		return x.BehaviorWhenLimitExceeded
+	}
+	return SessionLimitBehavior_DENY
+}
+
+// get Keycloak session limits instructions request
+type GetKeycloakSessionLimitsInstructionsReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// optional configuration to generate specific instructions
+	Config        *KeycloakSessionLimitsConfig `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsReq) Reset() {
+	*x = GetKeycloakSessionLimitsInstructionsReq{}
+	mi := &file_mytenant_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKeycloakSessionLimitsInstructionsReq) ProtoMessage() {}
+
+func (x *GetKeycloakSessionLimitsInstructionsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKeycloakSessionLimitsInstructionsReq.ProtoReflect.Descriptor instead.
+func (*GetKeycloakSessionLimitsInstructionsReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsReq) GetConfig() *KeycloakSessionLimitsConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+// get Keycloak session limits instructions response
+type GetKeycloakSessionLimitsInstructionsResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// current session limits configuration
+	Config *KeycloakSessionLimitsConfig `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	// current realm name
+	Realm         string `protobuf:"bytes,2,opt,name=realm,proto3" json:"realm,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsResp) Reset() {
+	*x = GetKeycloakSessionLimitsInstructionsResp{}
+	mi := &file_mytenant_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKeycloakSessionLimitsInstructionsResp) ProtoMessage() {}
+
+func (x *GetKeycloakSessionLimitsInstructionsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKeycloakSessionLimitsInstructionsResp.ProtoReflect.Descriptor instead.
+func (*GetKeycloakSessionLimitsInstructionsResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsResp) GetConfig() *KeycloakSessionLimitsConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *GetKeycloakSessionLimitsInstructionsResp) GetRealm() string {
+	if x != nil {
+		return x.Realm
+	}
+	return ""
+}
+
+// configure Keycloak session limits request
+type ConfigureKeycloakSessionLimitsReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// session limits configuration
+	Config        *KeycloakSessionLimitsConfig `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigureKeycloakSessionLimitsReq) Reset() {
+	*x = ConfigureKeycloakSessionLimitsReq{}
+	mi := &file_mytenant_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigureKeycloakSessionLimitsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigureKeycloakSessionLimitsReq) ProtoMessage() {}
+
+func (x *ConfigureKeycloakSessionLimitsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigureKeycloakSessionLimitsReq.ProtoReflect.Descriptor instead.
+func (*ConfigureKeycloakSessionLimitsReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ConfigureKeycloakSessionLimitsReq) GetConfig() *KeycloakSessionLimitsConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+// configure Keycloak session limits response
+type ConfigureKeycloakSessionLimitsResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// success message
+	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	// manual configuration instructions
+	Instructions  string `protobuf:"bytes,2,opt,name=instructions,proto3" json:"instructions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigureKeycloakSessionLimitsResp) Reset() {
+	*x = ConfigureKeycloakSessionLimitsResp{}
+	mi := &file_mytenant_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigureKeycloakSessionLimitsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigureKeycloakSessionLimitsResp) ProtoMessage() {}
+
+func (x *ConfigureKeycloakSessionLimitsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigureKeycloakSessionLimitsResp.ProtoReflect.Descriptor instead.
+func (*ConfigureKeycloakSessionLimitsResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ConfigureKeycloakSessionLimitsResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ConfigureKeycloakSessionLimitsResp) GetInstructions() string {
+	if x != nil {
+		return x.Instructions
+	}
+	return ""
+}
+
 var File_mytenant_proto protoreflect.FileDescriptor
 
 const file_mytenant_proto_rawDesc = "" +
@@ -366,12 +672,32 @@ const file_mytenant_proto_rawDesc = "" +
 	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12 \n" +
 	"\vpasswordAge\x18\b \x01(\x05R\vpasswordAge\x12<\n" +
 	"\x19forceExpirePasswordChange\x18\t \x01(\x05R\x19forceExpirePasswordChange\"\x1c\n" +
-	"\x1aMyPasswordPolicyUpdateResp2\xc7\x02\n" +
+	"\x1aMyPasswordPolicyUpdateResp\"\xb1\x01\n" +
+	"\x1bKeycloakSessionLimitsConfig\x126\n" +
+	"\x17max_concurrent_sessions\x18\x01 \x01(\x05R\x15maxConcurrentSessions\x12Z\n" +
+	"\x1cbehavior_when_limit_exceeded\x18\x02 \x01(\x0e2\x19.api.SessionLimitBehaviorR\x19behaviorWhenLimitExceeded\"c\n" +
+	"'GetKeycloakSessionLimitsInstructionsReq\x128\n" +
+	"\x06config\x18\x01 \x01(\v2 .api.KeycloakSessionLimitsConfigR\x06config\"z\n" +
+	"(GetKeycloakSessionLimitsInstructionsResp\x128\n" +
+	"\x06config\x18\x01 \x01(\v2 .api.KeycloakSessionLimitsConfigR\x06config\x12\x14\n" +
+	"\x05realm\x18\x02 \x01(\tR\x05realm\"]\n" +
+	"!ConfigureKeycloakSessionLimitsReq\x128\n" +
+	"\x06config\x18\x01 \x01(\v2 .api.KeycloakSessionLimitsConfigR\x06config\"b\n" +
+	"\"ConfigureKeycloakSessionLimitsResp\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\"\n" +
+	"\finstructions\x18\x02 \x01(\tR\finstructions*/\n" +
+	"\x14SessionLimitBehavior\x12\b\n" +
+	"\x04DENY\x10\x00\x12\r\n" +
+	"\tTERMINATE\x10\x012\xdd\x05\n" +
 	"\bMyTenant\x12\x94\x01\n" +
 	"\x13GetMyPasswordPolicy\x12\x1b.api.MyPasswordPolicyGetReq\x1a\x1c.api.MyPasswordPolicyGetResp\"B\x8a\xb5\x18\x16\n" +
 	"\x0fpassword-policy\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/password-policy\x12\xa3\x01\n" +
 	"\x16UpdateMyPasswordPolicy\x12\x1e.api.MyPasswordPolicyUpdateReq\x1a\x1f.api.MyPasswordPolicyUpdateResp\"H\x8a\xb5\x18\x19\n" +
-	"\x0fpassword-policy\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/mytenant/v1/password-policyB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\x0fpassword-policy\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/mytenant/v1/password-policy\x12\xce\x01\n" +
+	"$GetKeycloakSessionLimitsInstructions\x12,.api.GetKeycloakSessionLimitsInstructionsReq\x1a-.api.GetKeycloakSessionLimitsInstructionsResp\"I\x8a\xb5\x18\x15\n" +
+	"\x0esession-limits\x1a\x03get\x82\xd3\xe4\x93\x02*\x12(/api/mytenant/v1/keycloak-session-limits\x12\xc2\x01\n" +
+	"\x1eConfigureKeycloakSessionLimits\x12&.api.ConfigureKeycloakSessionLimitsReq\x1a'.api.ConfigureKeycloakSessionLimitsResp\"O\x8a\xb5\x18\x18\n" +
+	"\x0esession-limits\x1a\x06update\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/mytenant/v1/keycloak-session-limitsB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_mytenant_proto_rawDescOnce sync.Once
@@ -385,23 +711,38 @@ func file_mytenant_proto_rawDescGZIP() []byte {
 	return file_mytenant_proto_rawDescData
 }
 
-var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_mytenant_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_mytenant_proto_goTypes = []any{
-	(*MyPasswordPolicyGetReq)(nil),     // 0: api.MyPasswordPolicyGetReq
-	(*MyPasswordPolicyGetResp)(nil),    // 1: api.MyPasswordPolicyGetResp
-	(*MyPasswordPolicyUpdateReq)(nil),  // 2: api.MyPasswordPolicyUpdateReq
-	(*MyPasswordPolicyUpdateResp)(nil), // 3: api.MyPasswordPolicyUpdateResp
+	(SessionLimitBehavior)(0),                        // 0: api.SessionLimitBehavior
+	(*MyPasswordPolicyGetReq)(nil),                   // 1: api.MyPasswordPolicyGetReq
+	(*MyPasswordPolicyGetResp)(nil),                  // 2: api.MyPasswordPolicyGetResp
+	(*MyPasswordPolicyUpdateReq)(nil),                // 3: api.MyPasswordPolicyUpdateReq
+	(*MyPasswordPolicyUpdateResp)(nil),               // 4: api.MyPasswordPolicyUpdateResp
+	(*KeycloakSessionLimitsConfig)(nil),              // 5: api.KeycloakSessionLimitsConfig
+	(*GetKeycloakSessionLimitsInstructionsReq)(nil),  // 6: api.GetKeycloakSessionLimitsInstructionsReq
+	(*GetKeycloakSessionLimitsInstructionsResp)(nil), // 7: api.GetKeycloakSessionLimitsInstructionsResp
+	(*ConfigureKeycloakSessionLimitsReq)(nil),        // 8: api.ConfigureKeycloakSessionLimitsReq
+	(*ConfigureKeycloakSessionLimitsResp)(nil),       // 9: api.ConfigureKeycloakSessionLimitsResp
 }
 var file_mytenant_proto_depIdxs = []int32{
-	0, // 0: api.MyTenant.GetMyPasswordPolicy:input_type -> api.MyPasswordPolicyGetReq
-	2, // 1: api.MyTenant.UpdateMyPasswordPolicy:input_type -> api.MyPasswordPolicyUpdateReq
-	1, // 2: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
-	3, // 3: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: api.KeycloakSessionLimitsConfig.behavior_when_limit_exceeded:type_name -> api.SessionLimitBehavior
+	5, // 1: api.GetKeycloakSessionLimitsInstructionsReq.config:type_name -> api.KeycloakSessionLimitsConfig
+	5, // 2: api.GetKeycloakSessionLimitsInstructionsResp.config:type_name -> api.KeycloakSessionLimitsConfig
+	5, // 3: api.ConfigureKeycloakSessionLimitsReq.config:type_name -> api.KeycloakSessionLimitsConfig
+	1, // 4: api.MyTenant.GetMyPasswordPolicy:input_type -> api.MyPasswordPolicyGetReq
+	3, // 5: api.MyTenant.UpdateMyPasswordPolicy:input_type -> api.MyPasswordPolicyUpdateReq
+	6, // 6: api.MyTenant.GetKeycloakSessionLimitsInstructions:input_type -> api.GetKeycloakSessionLimitsInstructionsReq
+	8, // 7: api.MyTenant.ConfigureKeycloakSessionLimits:input_type -> api.ConfigureKeycloakSessionLimitsReq
+	2, // 8: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
+	4, // 9: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
+	7, // 10: api.MyTenant.GetKeycloakSessionLimitsInstructions:output_type -> api.GetKeycloakSessionLimitsInstructionsResp
+	9, // 11: api.MyTenant.ConfigureKeycloakSessionLimits:output_type -> api.ConfigureKeycloakSessionLimitsResp
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_mytenant_proto_init() }
@@ -414,13 +755,14 @@ func file_mytenant_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_mytenant_proto_rawDesc), len(file_mytenant_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_mytenant_proto_goTypes,
 		DependencyIndexes: file_mytenant_proto_depIdxs,
+		EnumInfos:         file_mytenant_proto_enumTypes,
 		MessageInfos:      file_mytenant_proto_msgTypes,
 	}.Build()
 	File_mytenant_proto = out.File
